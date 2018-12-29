@@ -41,7 +41,7 @@ class Board(object):
         return Board(size=self.size, board=board)
 
     def is_empty(self, pos: Position) -> bool:
-        return pos in self.board
+        return bool(self.board.get(pos))
 
     def get_position(self, name: AnyStr) -> Optional[Position]:
         for pos, n in self.board.items():

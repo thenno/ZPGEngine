@@ -1,7 +1,7 @@
 from typing import Iterable
-from core.actions import Command
 from core.randomizer import Randomizer
+from core.actions import Action
 
 
-def choose_command(actions: Iterable[Command], randomizer: Randomizer):
+def choose_command(actions: Iterable[Action], randomizer: Randomizer) -> Action:
     return randomizer.choice(actions)

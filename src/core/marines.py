@@ -1,6 +1,12 @@
+from typing import NewType
+
+
+MarineId = NewType('MarineId', str)
+
+
 class Marine(object):
 
-    def __init__(self, name):
+    def __init__(self, name: MarineId):
         self.name = name
 
     def __eq__(self, other):
