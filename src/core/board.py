@@ -41,13 +41,18 @@ class Board(object):
         return Board(size=self.size, board=board)
 
     def is_empty(self, pos: Position) -> bool:
-        return bool(self.board.get(pos))
+        return not bool(self.board.get(pos))
 
     def get_position(self, name: AnyStr) -> Optional[Position]:
         for pos, n in self.board.items():
             if name == n:
                 return pos
         return None
+
+    def position_in_board(self, pos: Position) -> bool:
+        if (0 <= pos.x < self.size) and (0 <= pos.y < self.size):
+            return True
+        return False
 
 
 def print_board(board: Board):
@@ -64,7 +69,7 @@ def print_board(board: Board):
     print('y')
     for number, line in zip(range(board.size), printed_board):
         line_serialized = map(str, line)
-        print(str(number) + ' ' + ''.join(line_serialized))
+        print(str(number).zfill(2) + ' ' + ''.join(line_serialized))
     print()
 
 
@@ -74,14 +79,10 @@ def get_distance(pos1, pos2) -> Distance:
     )
 
 
-def generate_movements(board: Board, pos: Position) -> Iterable[Position]:
+def generate_movements(pos: Position) -> Iterable[Position]:
     for mx in range(-1, 2):
         for my in range(-1, 2):
             if mx == 0 and my == 0:
                 continue
             new_pos = Position(mx + pos.x, my + pos.y)
-            if not ((0 <= new_pos.x < board.size) and (0 <= new_pos.y < board.size)):
-                continue
-            if board.is_empty(new_pos):
-                continue
             yield new_pos

@@ -1,7 +1,7 @@
 from typing import Iterable
 from copy import deepcopy
 
-from core.board import Position, generate_movements
+from core.board import Position, generate_movements, get_distance
 from core.game import Game
 from core.marines import MarineId
 
@@ -26,10 +26,14 @@ class Walk(Action):
         return game
 
     def is_valid(self) -> bool:
+        if get_distance(self._pos_from, self._pos_to) != 1:
+            return False
         return self._validate()
 
     def _validate(self) -> bool:
-        if self._game.board.is_empty(self._pos_to):
+        if not self._game.board.is_empty(self._pos_to):
+            return False
+        if not self._game.board.position_in_board(self._pos_to):
             return False
         return True
 
@@ -38,7 +42,7 @@ class Walk(Action):
         marine_pos = game.board.get_position(marine_id)
         if marine_pos is None:
             return []
-        for new_pos in generate_movements(game.board, marine_pos):
+        for new_pos in generate_movements(marine_pos):
             action = Walk(game, marine_pos, new_pos)
             if action.is_valid():
                 yield Walk(game, marine_pos, new_pos)
