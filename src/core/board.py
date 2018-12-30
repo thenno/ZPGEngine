@@ -1,27 +1,29 @@
 import copy
+import dataclasses
 from typing import Dict, List, Any, Optional, Iterable, NewType, AnyStr
 
 
 Distance = NewType('Distance', int)
 
 
-class Position(object):
+@dataclasses.dataclass(frozen=True)
+class Position:
+    x: int
+    y: int
 
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
 
-    def __eq__(self, other):
-        return other.x == self.x and other.y == self.y
+@dataclasses.dataclass(frozen=True)
+class Direction:
+    x: int
+    y: int
 
-    def __str__(self):
-        return 'Position(x={x};y={y})'.format(x=self.x, y=self.y)
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __hash__(self):
-        return hash((self.x, self.y))
+    @staticmethod
+    def from_positions(pos1: Position, pos2: Position):
+        x = pos2.x - pos1.x
+        y = pos2.y - pos1.y
+        x = 0 if x == 0 else x // abs(x)
+        y = 0 if y == 0 else y // abs(y)
+        return Direction(x, y)
 
 
 class Board(object):
@@ -61,7 +63,6 @@ def print_board(board: Board):
         return [
             [replacer] * size for _ in range(size)
         ]
-    # List
     printed_board = generate_board(board.size)
     for pos, name in board.board.items():
         printed_board[pos.y][pos.x] = name
@@ -79,9 +80,9 @@ def get_distance(pos1, pos2) -> Distance:
     )
 
 
-def generate_movements(pos: Position) -> Iterable[Position]:
-    for mx in range(-1, 2):
-        for my in range(-1, 2):
+def generate_movements(pos: Position, distance: Distance = Distance(1)) -> Iterable[Position]:
+    for mx in range(-distance, distance + 1):
+        for my in range(-distance, distance + 1):
             if mx == 0 and my == 0:
                 continue
             new_pos = Position(mx + pos.x, my + pos.y)

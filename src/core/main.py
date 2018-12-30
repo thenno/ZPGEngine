@@ -5,6 +5,7 @@ from core.game import Game, Memory
 from core.board import (
     Board,
     Position,
+    Direction,
     print_board,
 )
 from core.randomizer import Randomizer
@@ -17,8 +18,14 @@ from core.actions import (
 def main():
     game = Game(
         marines={
-            MarineId('1'): Marine(name=MarineId('1')),
-            MarineId('2'): Marine(name=MarineId('2')),
+            MarineId('1'): Marine(
+                name=MarineId('1'),
+                gaze_direction=Direction(-1, -1),
+            ),
+            MarineId('2'): Marine(
+                name=MarineId('2'),
+                gaze_direction=Direction(1, 1),
+            ),
         },
         board=Board(
             size=16,

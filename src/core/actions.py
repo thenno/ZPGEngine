@@ -38,7 +38,7 @@ class Walk(Action):
         return True
 
     @staticmethod
-    def get_allowed(marine_id: MarineId, game: Game) -> Iterable:
+    def get_allowed(marine_id: MarineId, game: Game) -> Iterable[Action]:
         marine_pos = game.board.get_position(marine_id)
         if marine_pos is None:
             return []
