@@ -66,7 +66,7 @@ def print_board(board: Board):
     printed_board = generate_board(board.size)
     for pos, name in board.board.items():
         printed_board[pos.y][pos.x] = name
-    print(' x' + ''.join(map(str, range(board.size))))
+    print(' x ' + ''.join(map(str, range(board.size))))
     print('y')
     for number, line in zip(range(board.size), printed_board):
         line_serialized = map(str, line)
@@ -87,3 +87,36 @@ def generate_movements(pos: Position, distance: Distance = Distance(1)) -> Itera
                 continue
             new_pos = Position(mx + pos.x, my + pos.y)
             yield new_pos
+
+
+def line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
+    """
+    Bresenham's line algorithm
+    """
+
+    delta_x = abs(pos2.x - pos1.x)
+    delta_y = abs(pos2.y - pos1.y)
+    if delta_x > delta_y:
+        a1, b1, a2, b2 = pos1.x, pos1.y, pos2.x, pos2.y
+    else:
+        a1, b1, a2, b2 = pos1.y, pos1.x, pos2.y, pos2.x
+    delta_a = abs(a2 - a1)
+    delta_b = abs(b2 - b1)
+    error = 0.0
+    delta_err = delta_b / delta_a if delta_a != 0 else 0
+    b = b1
+    direction = b2 - b1
+    if direction > 0:
+        direction = 1
+    if direction < 0:
+        direction = -1
+    range_a = range(min(a1, a2), max(a1, a2) + 1)
+    for a in range_a:
+        if delta_x > delta_y:
+            yield Position(a, b)
+        else:
+            yield Position(b, a)
+        error = error + delta_err
+        if error >= 0.5:
+            b = b + direction
+            error = error - 1.0

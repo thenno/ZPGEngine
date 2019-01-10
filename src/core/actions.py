@@ -1,7 +1,7 @@
 from typing import Iterable
 from copy import deepcopy
 
-from core.board import Position, generate_movements, get_distance
+from core.board import Position, generate_movements, Direction
 from core.game import Game
 from core.marines import MarineId
 
@@ -23,14 +23,11 @@ class Walk(Action):
     def apply(self) -> Game:
         game = deepcopy(self._game)
         game.board = game.board.move(self._pos_from, self._pos_to)
+        marine_id = game.board.board[self._pos_to]
+        game.marines[marine_id].gaze_direction = Direction.from_positions(self._pos_from, self._pos_to)
         return game
 
     def is_valid(self) -> bool:
-        if get_distance(self._pos_from, self._pos_to) != 1:
-            return False
-        return self._validate()
-
-    def _validate(self) -> bool:
         if not self._game.board.is_empty(self._pos_to):
             return False
         if not self._game.board.position_in_board(self._pos_to):

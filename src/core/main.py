@@ -7,6 +7,7 @@ from core.board import (
     Position,
     Direction,
     print_board,
+    line_of_view,
 )
 from core.randomizer import Randomizer
 from core.marines import Marine, MarineId
@@ -45,6 +46,7 @@ def main():
     randomizer = Randomizer()
     while all(map(lambda x: x.alive, game.marines.values())):
         for marine_id in game.marines.keys():
+            print(marine_id)
             allow_actions = get_allow_actions(
                 marine_id=marine_id,
                 game=game,
@@ -54,6 +56,8 @@ def main():
             if command and command.is_valid():
                 game = command.apply()
                 print_board(game.board)
+            print(game.marines[marine_id].gaze_direction)
+            input()
 
 
 if __name__ == '__main__':
