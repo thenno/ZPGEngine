@@ -110,7 +110,10 @@ def line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
         direction = 1
     if direction < 0:
         direction = -1
-    range_a = range(min(a1, a2), max(a1, a2) + 1)
+    if a1 < a2:
+        range_a = range(a1, a2 + 1)
+    else:
+        range_a = range(a2, a1 + 1)[::-1]
     for a in range_a:
         if delta_x > delta_y:
             yield Position(a, b)
