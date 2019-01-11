@@ -1,6 +1,7 @@
 from core.board import (
     Position,
     Distance,
+    Direction,
     line_of_view,
     get_distance,
 )
@@ -50,3 +51,9 @@ def test_get_distance():
     assert get_distance(Position(10, 10), Position(0, 0)) == Distance(20)
     assert get_distance(Position(0, 0), Position(10, 10)) == Distance(20)
     assert get_distance(Position(5, 5), Position(1, 9)) == Distance(8)
+
+
+def test_direction():
+    assert Direction.from_positions(Position(5, 5), Position(5, 5)) == Direction(0, 0)
+    assert Direction.from_positions(Position(5, 5), Position(1, 3)) == Direction(-1, -1)
+    assert Direction.from_positions(Position(3, 6), Position(5, 5)) == Direction(1, -1)
