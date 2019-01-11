@@ -1,6 +1,8 @@
 from core.board import (
     Position,
+    Distance,
     line_of_view,
+    get_distance,
 )
 
 
@@ -39,3 +41,12 @@ def test_line_of_view():
         Position(x=2, y=2),
         Position(x=1, y=1),
     ]
+
+
+def test_get_distance():
+    assert get_distance(Position(0, 0), Position(0, 0)) == Distance(0)
+    assert get_distance(Position(10, 0), Position(0, 0)) == Distance(10)
+    assert get_distance(Position(0, 0), Position(0, 10)) == Distance(10)
+    assert get_distance(Position(10, 10), Position(0, 0)) == Distance(20)
+    assert get_distance(Position(0, 0), Position(10, 10)) == Distance(20)
+    assert get_distance(Position(5, 5), Position(1, 9)) == Distance(8)
