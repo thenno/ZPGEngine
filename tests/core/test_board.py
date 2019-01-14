@@ -48,10 +48,9 @@ def test_line_of_view():
 def test_get_distance():
     assert get_distance(Position(0, 0), Position(0, 0)) == Distance(0)
     assert get_distance(Position(10, 0), Position(0, 0)) == Distance(10)
-    assert get_distance(Position(0, 0), Position(0, 10)) == Distance(10)
-    assert get_distance(Position(10, 10), Position(0, 0)) == Distance(20)
-    assert get_distance(Position(0, 0), Position(10, 10)) == Distance(20)
-    assert get_distance(Position(5, 5), Position(1, 9)) == Distance(8)
+    assert get_distance(Position(0, 10), Position(0, 0)) == Distance(10)
+    assert get_distance(Position(10, 10), Position(0, 0)) == Distance(10)
+    assert get_distance(Position(6, 2), Position(12, 10)) == Distance(8)
 
 
 def test_direction():

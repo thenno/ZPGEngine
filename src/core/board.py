@@ -76,7 +76,7 @@ def print_board(board: Board):
 
 def get_distance(pos1, pos2) -> Distance:
     return Distance(
-        abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y),
+        max(abs(pos1.x - pos2.x), abs(pos1.y - pos2.y)),
     )
 
 
