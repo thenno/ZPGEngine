@@ -4,6 +4,7 @@ from core.board import (
     Direction,
     line_of_view,
     get_distance,
+    generate_movements,
 )
 
 
@@ -57,3 +58,42 @@ def test_direction():
     assert Direction.from_positions(Position(5, 5), Position(5, 5)) == Direction(0, 0)
     assert Direction.from_positions(Position(5, 5), Position(1, 3)) == Direction(-1, -1)
     assert Direction.from_positions(Position(3, 6), Position(5, 5)) == Direction(1, -1)
+
+
+def test_generate_movements():
+    assert list(generate_movements(Position(5, 5), Distance(1))) == [
+        Position(4, 4),
+        Position(4, 5),
+        Position(4, 6),
+        Position(5, 4),
+        Position(5, 6),
+        Position(6, 4),
+        Position(6, 5),
+        Position(6, 6),
+    ]
+    assert list(generate_movements(Position(5, 5), Distance(2))) == [
+        Position(x=3, y=3),
+        Position(x=3, y=4),
+        Position(x=3, y=5),
+        Position(x=3, y=6),
+        Position(x=3, y=7),
+        Position(x=4, y=3),
+        Position(x=4, y=4),
+        Position(x=4, y=5),
+        Position(x=4, y=6),
+        Position(x=4, y=7),
+        Position(x=5, y=3),
+        Position(x=5, y=4),
+        Position(x=5, y=6),
+        Position(x=5, y=7),
+        Position(x=6, y=3),
+        Position(x=6, y=4),
+        Position(x=6, y=5),
+        Position(x=6, y=6),
+        Position(x=6, y=7),
+        Position(x=7, y=3),
+        Position(x=7, y=4),
+        Position(x=7, y=5),
+        Position(x=7, y=6),
+        Position(x=7, y=7),
+    ]

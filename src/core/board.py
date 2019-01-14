@@ -83,7 +83,7 @@ def get_distance(pos1, pos2) -> Distance:
 def generate_movements(pos: Position, distance: Distance = Distance(1)) -> Iterable[Position]:
     for mx in range(-distance, distance + 1):
         for my in range(-distance, distance + 1):
-            if mx == 0 and my == 0:
+            if mx == my == 0:
                 continue
             new_pos = Position(mx + pos.x, my + pos.y)
             yield new_pos
