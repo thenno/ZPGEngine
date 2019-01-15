@@ -51,7 +51,7 @@ class Board(object):
                 return pos
         return None
 
-    def position_in_board(self, pos: Position) -> bool:
+    def is_position_in_board(self, pos: Position) -> bool:
         if (0 <= pos.x < self.size) and (0 <= pos.y < self.size):
             return True
         return False

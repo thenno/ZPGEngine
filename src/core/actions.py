@@ -39,7 +39,7 @@ class Walk(Action):
     def is_valid(self) -> bool:
         if not self._game.board.is_empty(self._pos_to):
             return False
-        if not self._game.board.position_in_board(self._pos_to):
+        if not self._game.board.is_position_in_board(self._pos_to):
             return False
         return True
 
