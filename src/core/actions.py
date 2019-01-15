@@ -1,16 +1,25 @@
 from typing import Iterable
 from copy import deepcopy
+from abc import ABCMeta, abstractmethod
 
 from core.board import Position, generate_movements, Direction
 from core.game import Game
 from core.marines import MarineId
 
 
-class Action:
+class Action(metaclass=ABCMeta):
+
+    @abstractmethod
     def is_valid(self) -> bool:
         pass
 
+    @abstractmethod
     def apply(self) -> Game:
+        pass
+
+    @property
+    @abstractmethod
+    def hash(self):
         pass
 
 
@@ -43,6 +52,10 @@ class Walk(Action):
             action = Walk(game, marine_pos, new_pos)
             if action.is_valid():
                 yield Walk(game, marine_pos, new_pos)
+
+    @property
+    def hash(self):
+        return hash(('WalkAction', self._pos_to, self._pos_to))
 
 
 def get_allow_actions(marine_id: MarineId, game: Game) -> Iterable[Action]:

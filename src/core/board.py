@@ -89,7 +89,7 @@ def generate_movements(pos: Position, distance: Distance = Distance(1)) -> Itera
             yield new_pos
 
 
-def line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
+def get_line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
     """
     Bresenham's line algorithm
     """
@@ -123,3 +123,7 @@ def line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
         if error >= 0.5:
             b = b + direction
             error = error - 1.0
+
+
+def get_field_of_view():
+    pass

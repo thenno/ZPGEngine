@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from core.ai import choose_command
+from core.ai import choose_action
 from core.game import Game, Memory
 from core.board import (
     Board,
     Position,
     Direction,
     print_board,
-    line_of_view,
 )
 from core.randomizer import Randomizer
 from core.marines import Marine, MarineId
@@ -47,14 +46,16 @@ def main():
     while all(map(lambda x: x.alive, game.marines.values())):
         for marine_id in game.marines.keys():
             print(marine_id)
-            allow_actions = get_allow_actions(
-                marine_id=marine_id,
-                game=game,
-            )
-            allow_actions = list(allow_actions)
-            command = choose_command(allow_actions, randomizer=randomizer)
-            if command and command.is_valid():
-                game = command.apply()
+            allow_actions = {
+                action.hash: action
+                for action in get_allow_actions(
+                    marine_id=marine_id,
+                    game=game,
+                )
+            }
+            action = choose_action(list(allow_actions.values()), randomizer=randomizer)
+            if action and action.hash in allow_actions:
+                game = action.apply()
                 print_board(game.board)
             print(game.marines[marine_id].gaze_direction)
             input()
