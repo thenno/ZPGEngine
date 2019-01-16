@@ -74,6 +74,18 @@ def print_board(board: Board):
     print()
 
 
+def print_fov_board(board: Board, fov):
+    for j in range(board.size):
+        line = []
+        for i in range(board.size):
+            if Position(i, j) in fov:
+                line.append(board.board.get(Position(i, j), '.'))
+            else:
+                line.append('?')
+        print(line)
+    print()
+
+
 def get_distance(pos1, pos2) -> Distance:
     return Distance(
         max(abs(pos1.x - pos2.x), abs(pos1.y - pos2.y)),
@@ -83,8 +95,6 @@ def get_distance(pos1, pos2) -> Distance:
 def generate_movements(pos: Position, distance: Distance = Distance(1)) -> Iterable[Position]:
     for mx in range(-distance, distance + 1):
         for my in range(-distance, distance + 1):
-            if mx == my == 0:
-                continue
             new_pos = Position(mx + pos.x, my + pos.y)
             yield new_pos
 
@@ -125,5 +135,17 @@ def get_line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
             error = error - 1.0
 
 
-def get_field_of_view():
-    pass
+def get_field_of_view(pos_from: Position, board: Board) -> Iterable[Position]:
+    def is_visible(position: Position) -> bool:
+        line = list(get_line_of_view(pos_from, position))
+        for i, pos_for_check in enumerate(line):
+            if i not in (0, len(line) - 1) and not board.is_empty(pos_for_check):
+                return False
+        return True
+
+    positions = generate_movements(pos_from, distance=Distance(5))
+    for pos in positions:
+        if not board.is_position_in_board(pos):
+            continue
+        if is_visible(pos):
+            yield pos

@@ -7,6 +7,8 @@ from core.board import (
     Position,
     Direction,
     print_board,
+    get_field_of_view,
+    print_fov_board,
 )
 from core.randomizer import Randomizer
 from core.marines import Marine, MarineId
@@ -32,6 +34,17 @@ def main():
             board={
                 Position(0, 15): '1',
                 Position(15, 0): '2',
+                Position(0, 5): 'x',
+                Position(1, 5): 'x',
+                Position(2, 5): 'x',
+                Position(3, 5): 'x',
+                Position(4, 5): 'x',
+                Position(5, 5): 'x',
+                Position(8, 5): 'x',
+                Position(10, 5): 'x',
+                Position(11, 5): 'x',
+                Position(12, 5): 'x',
+                Position(13, 5): 'x',
             },
         ),
         memory=Memory(
@@ -53,10 +66,16 @@ def main():
                     game=game,
                 )
             }
-            action = choose_action(list(allow_actions.values()), randomizer=randomizer)
+            action = choose_action(
+                list(allow_actions.values()),
+                randomizer=randomizer,
+            )
             if action and action.hash in allow_actions:
                 game = action.apply()
+                p = game.board.get_position(marine_id)
+                fov = list(get_field_of_view(p, game.board))
                 print_board(game.board)
+                print_fov_board(game.board, fov)
             print(game.marines[marine_id].gaze_direction)
             input()
 
