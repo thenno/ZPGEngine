@@ -1,6 +1,15 @@
 import copy
 import dataclasses
-from typing import Dict, List, Any, Optional, Iterable, NewType, AnyStr
+from typing import (
+    Dict,
+    List,
+    Any,
+    Optional,
+    Iterable,
+    NewType,
+    AnyStr,
+    Set,
+)
 
 
 Distance = NewType('Distance', int)
@@ -56,8 +65,32 @@ class Board(object):
             return True
         return False
 
+    def get_view(self, mask: Set[Position]) -> Dict[Position, Any]:
+        return {
+            position: obj
+            for position, obj in self.board.items()
+            if position in mask
+        }
 
-def print_board(board: Board):
+    def get_fov_mask(self, position: Position) -> Set[Position]:
+        def is_visible(pos_to: Position) -> bool:
+            line = list(get_line_of_view(position, pos_to))
+            for i, pos_for_check in enumerate(line):
+                if i not in (0, len(line) - 1) and not self.is_empty(pos_for_check):
+                    return False
+            return True
+
+        positions = generate_movements(position, distance=Distance(5))
+        result = set()
+        for pos in positions:
+            if not self.is_position_in_board(pos):
+                continue
+            if is_visible(pos):
+                result.add(pos)
+        return result
+
+
+def print_board(board: Board, mask: Optional[Set[Position]] = None):
     def generate_board(size: int) -> List[List]:
         replacer = '.'
         return [
@@ -66,6 +99,11 @@ def print_board(board: Board):
     printed_board = generate_board(board.size)
     for pos, name in board.board.items():
         printed_board[pos.y][pos.x] = name
+    if mask is not None:
+        for y in range(board.size):
+            for x in range(board.size):
+                if Position(x, y) not in mask:
+                    printed_board[y][x] = '?'
     print(' x ' + ''.join(map(str, range(board.size))))
     print('y')
     for number, line in zip(range(board.size), printed_board):
@@ -133,19 +171,3 @@ def get_line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
         if error >= 0.5:
             b = b + direction
             error = error - 1.0
-
-
-def get_field_of_view(pos_from: Position, board: Board) -> Iterable[Position]:
-    def is_visible(position: Position) -> bool:
-        line = list(get_line_of_view(pos_from, position))
-        for i, pos_for_check in enumerate(line):
-            if i not in (0, len(line) - 1) and not board.is_empty(pos_for_check):
-                return False
-        return True
-
-    positions = generate_movements(pos_from, distance=Distance(5))
-    for pos in positions:
-        if not board.is_position_in_board(pos):
-            continue
-        if is_visible(pos):
-            yield pos

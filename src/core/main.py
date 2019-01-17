@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
+from copy import deepcopy
+
 from core.ai import choose_action
-from core.game import Game, Memory
+from core.game import Game
 from core.board import (
     Board,
     Position,
     Direction,
     print_board,
-    get_field_of_view,
-    print_fov_board,
 )
 from core.randomizer import Randomizer
 from core.marines import Marine, MarineId
@@ -47,12 +47,14 @@ def main():
                 Position(13, 5): 'x',
             },
         ),
-        memory=Memory(
-            {
-                MarineId('1'): [],
-                MarineId('2'): [],
-            },
-        ),
+        memory={
+            MarineId('1'): [],
+            MarineId('2'): [],
+        },
+        goals={
+            MarineId('1'): [],
+            MarineId('2'): [],
+        }
     )
     print_board(game.board)
     randomizer = Randomizer()
@@ -66,16 +68,19 @@ def main():
                     game=game,
                 )
             }
+            position = game.board.get_position(marine_id)
+            mask = game.board.get_fov_mask(position)
+            fov = game.board.get_view(mask)
             action = choose_action(
-                list(allow_actions.values()),
+                actions=allow_actions.values(),
+                fov=fov,
+                position=position,
                 randomizer=randomizer,
             )
             if action and action.hash in allow_actions:
                 game = action.apply()
-                p = game.board.get_position(marine_id)
-                fov = list(get_field_of_view(p, game.board))
                 print_board(game.board)
-                print_fov_board(game.board, fov)
+                print_board(game.board, mask=mask)
             print(game.marines[marine_id].gaze_direction)
             input()
 

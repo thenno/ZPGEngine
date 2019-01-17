@@ -1,14 +1,14 @@
 import dataclasses
-from typing import NewType, Dict, List
+from typing import Dict, List
 
 from core.board import Board
 from core.marines import MarineId, Marine
-
-Memory = NewType('Memory', Dict[MarineId, List])
+from core.goals import Goal
 
 
 @dataclasses.dataclass
 class Game:
     board: Board
-    memory: Memory
+    memory: Dict[MarineId, List]
     marines: Dict[MarineId, Marine]
+    goals: Dict[MarineId, List[Goal]]
