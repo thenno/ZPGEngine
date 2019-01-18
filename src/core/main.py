@@ -2,7 +2,7 @@
 
 from copy import deepcopy
 
-from core.ai import choose_action
+from core.ai import choose_command
 from core.game import Game
 from core.board import (
     Board,
@@ -61,8 +61,8 @@ def main():
     while all(map(lambda x: x.alive, game.marines.values())):
         for marine_id in game.marines.keys():
             print(marine_id)
-            allow_actions = {
-                action.hash: action
+            allow_commands = {
+                action.to_command()
                 for action in get_allow_actions(
                     marine_id=marine_id,
                     game=game,
@@ -71,14 +71,14 @@ def main():
             position = game.board.get_position(marine_id)
             mask = game.board.get_fov_mask(position)
             fov = game.board.get_view(mask)
-            action = choose_action(
-                actions=allow_actions.values(),
+            command = choose_command(
+                commands=allow_commands,
                 fov=fov,
-                position=position,
                 randomizer=randomizer,
+                goals=game.goals,
             )
-            if action and action.hash in allow_actions:
-                game = action.apply()
+            if command in allow_commands:
+                game = command.to_action(game=game).apply()
                 print_board(game.board)
                 print_board(game.board, mask=mask)
             print(game.marines[marine_id].gaze_direction)

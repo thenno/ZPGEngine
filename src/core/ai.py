@@ -1,9 +1,9 @@
 from typing import Iterable
 
 from core.randomizer import Randomizer
-from core.actions import Action
+from core.actions import Action, Command
 from core.board import Position
 
 
-def choose_action(actions: Iterable[Action], position: Position, fov, randomizer: Randomizer) -> Action:
-    return randomizer.choice(list(actions))
+def choose_command(commands: Iterable[Action], goals, fov, randomizer: Randomizer) -> Command:
+    return randomizer.choice(list(commands))

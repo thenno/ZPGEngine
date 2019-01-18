@@ -1,10 +1,18 @@
 from typing import Iterable
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
 from core.board import Position, generate_movements, Direction
 from core.game import Game
 from core.marines import MarineId
+
+
+class Command(metaclass=ABCMeta):
+
+    @abstractmethod
+    def to_action(self, game: Game) -> 'Action':
+        pass
 
 
 class Action(metaclass=ABCMeta):
@@ -14,13 +22,21 @@ class Action(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def to_command(self) -> Command:
+        pass
+
+    @abstractmethod
     def apply(self) -> Game:
         pass
 
-    @property
-    @abstractmethod
-    def hash(self):
-        pass
+
+@dataclass(frozen=True)
+class CommandWalk(Command):
+    pos_from: Position
+    pos_to: Position
+
+    def to_action(self, game: Game) -> Action:
+        return Walk(game=game, pos_to=self.pos_to, pos_from=self.pos_from)
 
 
 class Walk(Action):
@@ -53,9 +69,8 @@ class Walk(Action):
             if action.is_valid():
                 yield Walk(game, marine_pos, new_pos)
 
-    @property
-    def hash(self):
-        return hash(('WalkAction', self._pos_to, self._pos_to))
+    def to_command(self) -> CommandWalk:
+        return CommandWalk(pos_from=self._pos_from, pos_to=self._pos_to)
 
 
 def get_allow_actions(marine_id: MarineId, game: Game) -> Iterable[Action]:
