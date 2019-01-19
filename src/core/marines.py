@@ -6,7 +6,7 @@ from core.board import Direction
 MarineId = NewType('MarineId', str)
 
 
-class Marine(object):
+class Marine:
 
     def __init__(self, name: MarineId, gaze_direction: Direction):
         self.name = name

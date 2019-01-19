@@ -10,9 +10,11 @@ from core.board import (
     Direction,
     print_board,
 )
+from core.goals import Goals
 from core.randomizer import Randomizer
 from core.marines import Marine, MarineId
 from core.actions import (
+    Commands,
     get_allow_actions,
 )
 
@@ -52,35 +54,32 @@ def main():
             MarineId('2'): [],
         },
         goals={
-            MarineId('1'): [],
-            MarineId('2'): [],
-        }
+            MarineId('1'): Goals([]),
+            MarineId('2'): Goals([]),
+        },
     )
     print_board(game.board)
     randomizer = Randomizer()
     while all(map(lambda x: x.alive, game.marines.values())):
         for marine_id in game.marines.keys():
             print(marine_id)
-            allow_commands = {
+            allow_commands = Commands({
                 action.to_command()
                 for action in get_allow_actions(
                     marine_id=marine_id,
                     game=game,
                 )
-            }
-            position = game.board.get_position(marine_id)
-            mask = game.board.get_fov_mask(position)
-            fov = game.board.get_view(mask)
+            })
+            knowledge = game.get_marine_knowledge(marine_id)
             command = choose_command(
                 commands=allow_commands,
-                fov=fov,
+                knowledge=knowledge,
                 randomizer=randomizer,
-                goals=game.goals,
             )
             if command in allow_commands:
                 game = command.to_action(game=game).apply()
                 print_board(game.board)
-                print_board(game.board, mask=mask)
+                print_board(game.board, mask=knowledge.mask)
             print(game.marines[marine_id].gaze_direction)
             input()
 

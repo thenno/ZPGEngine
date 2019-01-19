@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Set, NewType
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
@@ -13,6 +13,9 @@ class Command(metaclass=ABCMeta):
     @abstractmethod
     def to_action(self, game: Game) -> 'Action':
         pass
+
+
+Commands = NewType('Commands', Set[Command])
 
 
 class Action(metaclass=ABCMeta):

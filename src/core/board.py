@@ -21,6 +21,9 @@ class Position:
     y: int
 
 
+FOV = NewType('FOV', Dict[Position, Any])
+
+
 @dataclasses.dataclass(frozen=True)
 class Direction:
     x: int
@@ -65,12 +68,12 @@ class Board(object):
             return True
         return False
 
-    def get_view(self, mask: Set[Position]) -> Dict[Position, Any]:
-        return {
+    def get_view(self, mask: Set[Position]) -> FOV:
+        return FOV({
             position: obj
             for position, obj in self.board.items()
             if position in mask
-        }
+        })
 
     def get_fov_mask(self, position: Position) -> Set[Position]:
         def is_visible(pos_to: Position) -> bool:
