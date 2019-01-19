@@ -143,6 +143,8 @@ def generate_movements(pos: Position, distance: Distance = Distance(1)) -> Itera
 def get_line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
     """
     Bresenham's line algorithm
+
+    There may be some problems, check it again and add tests
     """
 
     delta_x = abs(pos2.x - pos1.x)
