@@ -4,8 +4,7 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 
 from core.board import Position, generate_movements, Direction
-from core.game import Game
-from core.marines import MarineId
+from core.game import Game, GameId
 
 
 class Command(metaclass=ABCMeta):
@@ -64,8 +63,8 @@ class Walk(Action):
         return True
 
     @staticmethod
-    def get_allowed(marine_id: MarineId, game: Game) -> Iterable[Action]:
-        marine_pos = game.board.get_position(marine_id)
+    def get_allowed(game_id: GameId, game: Game) -> Iterable[Action]:
+        marine_pos = game.board.get_position(game_id)
         if marine_pos is None:
             return []
         for new_pos in generate_movements(marine_pos):
@@ -77,5 +76,5 @@ class Walk(Action):
         return CommandWalk(pos_from=self._pos_from, pos_to=self._pos_to)
 
 
-def get_allow_actions(marine_id: MarineId, game: Game) -> Iterable[Action]:
-    return Walk.get_allowed(marine_id, game)
+def get_allow_actions(game_id: GameId, game: Game) -> Iterable[Action]:
+    return Walk.get_allowed(game_id, game)

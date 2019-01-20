@@ -2,12 +2,10 @@ import copy
 import dataclasses
 from typing import (
     Dict,
-    List,
     Any,
     Optional,
     Iterable,
     NewType,
-    AnyStr,
     Set,
 )
 
@@ -57,7 +55,7 @@ class Board(object):
     def is_empty(self, pos: Position) -> bool:
         return not bool(self.board.get(pos))
 
-    def get_position(self, name: AnyStr) -> Optional[Position]:
+    def get_position(self, name: int) -> Optional[Position]:
         for pos, n in self.board.items():
             if name == n:
                 return pos
@@ -93,40 +91,6 @@ class Board(object):
         return result
 
 
-def print_board(board: Board, mask: Optional[Set[Position]] = None):
-    def generate_board(size: int) -> List[List]:
-        replacer = '.'
-        return [
-            [replacer] * size for _ in range(size)
-        ]
-    printed_board = generate_board(board.size)
-    for pos, name in board.board.items():
-        printed_board[pos.y][pos.x] = name
-    if mask is not None:
-        for y in range(board.size):
-            for x in range(board.size):
-                if Position(x, y) not in mask:
-                    printed_board[y][x] = '?'
-    print(' x ' + ''.join(map(str, range(board.size))))
-    print('y')
-    for number, line in zip(range(board.size), printed_board):
-        line_serialized = map(str, line)
-        print(str(number).zfill(2) + ' ' + ''.join(line_serialized))
-    print()
-
-
-def print_fov_board(board: Board, fov):
-    for j in range(board.size):
-        line = []
-        for i in range(board.size):
-            if Position(i, j) in fov:
-                line.append(board.board.get(Position(i, j), '.'))
-            else:
-                line.append('?')
-        print(line)
-    print()
-
-
 def get_distance(pos1, pos2) -> Distance:
     return Distance(
         max(abs(pos1.x - pos2.x), abs(pos1.y - pos2.y)),
@@ -147,6 +111,7 @@ def get_line_of_view(pos1: Position, pos2: Position) -> Iterable[Position]:
     There may be some problems, check it again and add tests
     """
 
+    # TODO: check it again and add tests
     delta_x = abs(pos2.x - pos1.x)
     delta_y = abs(pos2.y - pos1.y)
     if delta_x > delta_y:
