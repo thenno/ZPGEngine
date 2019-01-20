@@ -16,6 +16,7 @@ from core.actions import (
     Commands,
     get_allow_actions,
 )
+from core.memory import Memory
 
 
 def main():
@@ -49,8 +50,14 @@ def main():
             },
         ),
         memory={
-            MarineId('1'): [],
-            MarineId('2'): [],
+            MarineId('1'): Memory(
+                way=[],
+                enemies={},
+            ),
+            MarineId('2'): Memory(
+                way=[],
+                enemies={},
+            ),
         },
     )
     print_board(game.board)
@@ -76,6 +83,7 @@ def main():
                 print_board(game.board)
                 print_board(game.board, mask=knowledge.mask)
             print(game.marines[marine_id].gaze_direction)
+            print('Memory: ', game.memory[marine_id])
             input()
 
 

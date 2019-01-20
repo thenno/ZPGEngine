@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict, List, Set
+from typing import Dict, Set
 
 from core.board import Board, FOV, Position
 from core.marines import MarineId, Marine
+from core.memory import Memory
 
 
 @dataclass(frozen=True)
@@ -12,12 +13,13 @@ class MarineKnowledge:
     board_size: int
     position: Position
     mask: Set[Position]
+    memory: Memory
 
 
 @dataclass
 class Game:
     board: Board
-    memory: Dict[MarineId, List]
+    memory: Dict[MarineId, Memory]
     marines: Dict[MarineId, Marine]
 
     def get_marine_knowledge(self, marine_id: MarineId) -> MarineKnowledge:
@@ -32,4 +34,5 @@ class Game:
             fov=fov,
             board_size=self.board.size,
             mask=mask,  # mask in knowledge - WTF?
+            memory=self.memory[marine_id],
         )
