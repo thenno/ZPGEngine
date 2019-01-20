@@ -10,7 +10,6 @@ from core.board import (
     Direction,
     print_board,
 )
-from core.goals import Goals
 from core.randomizer import Randomizer
 from core.marines import Marine, MarineId
 from core.actions import (
@@ -52,10 +51,6 @@ def main():
         memory={
             MarineId('1'): [],
             MarineId('2'): [],
-        },
-        goals={
-            MarineId('1'): Goals([]),
-            MarineId('2'): Goals([]),
         },
     )
     print_board(game.board)

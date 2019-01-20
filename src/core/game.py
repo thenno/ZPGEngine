@@ -3,7 +3,6 @@ from typing import Dict, List, Set
 
 from core.board import Board, FOV, Position
 from core.marines import MarineId, Marine
-from core.goals import Goals
 
 
 @dataclass(frozen=True)
@@ -12,7 +11,6 @@ class MarineKnowledge:
     fov: FOV
     board_size: int
     position: Position
-    goals: Goals
     mask: Set[Position]
 
 
@@ -21,7 +19,6 @@ class Game:
     board: Board
     memory: Dict[MarineId, List]
     marines: Dict[MarineId, Marine]
-    goals: Dict[MarineId, Goals]
 
     def get_marine_knowledge(self, marine_id: MarineId) -> MarineKnowledge:
         position = self.board.get_position(marine_id)
@@ -34,6 +31,5 @@ class Game:
             position=position,
             fov=fov,
             board_size=self.board.size,
-            goals=self.goals[marine_id],
             mask=mask,  # mask in knowledge - WTF?
         )
