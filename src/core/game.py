@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, Set, NewType
 
 from core.board import Board, FOV, Position
-from core.marines import Marine
+from core.game_objects import Marine
 from core.memory import Memory
 
 

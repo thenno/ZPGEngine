@@ -14,7 +14,7 @@ from core.board import (
 )
 from core.viewer import print_board
 from core.randomizer import Randomizer
-from core.marines import Marine, MarineId
+from core.game_objects import Marine, MarineId
 from core.actions import (
     Commands,
     get_allow_actions,
