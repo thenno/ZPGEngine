@@ -5,4 +5,4 @@ How to try:
 2. ```python setup.py develop```
 3. ```pip install -r requirenments.txt```
 4. Check tests ```tox```
-5. Run ```python3 src/core/main.py```. Press Enter to next step.
+5. Run ```python3 main.py```. Press Enter to next step.
