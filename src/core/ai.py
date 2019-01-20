@@ -14,8 +14,8 @@ def choose_command(commands: Commands, knowledge: MarineKnowledge, randomizer: R
     return command
 
 
-def _choose_walk(commands: Set[CommandWalk], knowledge: MarineKnowledge, randomizer: Randomizer) -> CommandWalk:
-    commands = list(commands)
+def _choose_walk(raw_commands: Set[CommandWalk], knowledge: MarineKnowledge, randomizer: Randomizer) -> CommandWalk:
+    commands = list(raw_commands)
     if len(commands) == 1:
         return commands[0]
     for command in commands:
