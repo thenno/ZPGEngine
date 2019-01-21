@@ -34,7 +34,7 @@ class Marine(GameObject):
         return False
 
     @property
-    def is_alive(self):
+    def is_alive(self) -> bool:
         return True
 
     @property
