@@ -1,16 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict, Set, NewType
+from typing import Dict, Set
 
 from core.board import Board, FOV, Position
-from core.game_objects import Marine
+from core.game_objects import GameObject
 from core.memory import Memory
-
-
-GameObject = NewType('GameObject', str)
-
-
-MARINE = GameObject('marine')
-WALL = GameObject('wall')
 
 
 class GameId(int):
@@ -38,7 +31,6 @@ class Game:
     # TODO: game object have to construct by completed game objects
     board: Board
     memory: Dict[GameId, Memory]
-    marines: Dict[GameId, Marine]
     objects: Dict[GameId, GameObject]
 
     def get_marine_knowledge(self, game_id: GameId) -> MarineKnowledge:

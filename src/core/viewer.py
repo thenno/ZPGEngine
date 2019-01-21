@@ -1,7 +1,8 @@
 from typing import Optional, Set, List, Dict
 
 from core.board import Board, Position
-from core.game import GameObject, GameId, MARINE, WALL
+from core.game_objects import Marine, Wall, GameObject
+from core.game import GameId
 
 
 def print_board(board: Board, objects: Dict[GameId, GameObject], mask: Optional[Set[Position]] = None):
@@ -12,9 +13,9 @@ def print_board(board: Board, objects: Dict[GameId, GameObject], mask: Optional[
         ]
     printed_board = generate_board(board.size)
     for pos, name in board.board.items():
-        if objects[name] == MARINE:
+        if isinstance(objects[name], Marine):
             printed_board[pos.y][pos.x] = 'm'
-        elif objects[name] == WALL:
+        elif isinstance(objects[name], Wall):
             printed_board[pos.y][pos.x] = '#'
     if mask is not None:
         for y in range(board.size):

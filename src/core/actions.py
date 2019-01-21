@@ -52,7 +52,9 @@ class Walk(Action):
         game.board = game.board.move(self._pos_from, self._pos_to)
         marine_id = game.board.board[self._pos_to]
         game.memory[marine_id].way.append(self._pos_from)
-        game.marines[marine_id].gaze_direction = Direction.from_positions(self._pos_from, self._pos_to)
+        # it works only with Marines by contract
+        # TODO: it's upchk
+        game.objects[marine_id].gaze_direction = Direction.from_positions(self._pos_from, self._pos_to)  # type: ignore
         return game
 
     def is_valid(self) -> bool:

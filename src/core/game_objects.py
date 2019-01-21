@@ -1,12 +1,28 @@
 from typing import NewType
 
 from core.board import Direction
+from abc import ABCMeta, abstractmethod
 
 
 MarineId = NewType('MarineId', str)
 
 
-class Marine:
+class GameObject(metaclass=ABCMeta):
+
+    @property
+    @abstractmethod
+    def is_under_control(self) -> bool:
+        pass
+
+
+class Wall(GameObject):
+
+    @property
+    def is_under_control(self):
+        return False
+
+
+class Marine(GameObject):
 
     def __init__(self, name: MarineId, gaze_direction: Direction):
         self.name = name
@@ -18,7 +34,11 @@ class Marine:
         return False
 
     @property
-    def alive(self):
+    def is_alive(self):
+        return True
+
+    @property
+    def is_under_control(self):
         return True
 
     def __str__(self):

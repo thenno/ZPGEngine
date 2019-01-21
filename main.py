@@ -2,8 +2,6 @@
 
 from core.ai import choose_command
 from core.game import (
-    MARINE,
-    WALL,
     Game,
     GameId,
 )
@@ -14,7 +12,11 @@ from core.board import (
 )
 from core.viewer import print_board
 from core.randomizer import Randomizer
-from core.game_objects import Marine, MarineId
+from core.game_objects import (
+    Marine,
+    MarineId,
+    Wall,
+)
 from core.actions import (
     Commands,
     get_allow_actions,
@@ -24,16 +26,6 @@ from core.memory import Memory
 
 def main():
     game = Game(
-        marines={
-            GameId(1): Marine(
-                name=MarineId('1'),
-                gaze_direction=Direction(-1, -1),
-            ),
-            GameId(2): Marine(
-                name=MarineId('2'),
-                gaze_direction=Direction(1, 1),
-            ),
-        },
         board=Board(
             size=16,
             board={
@@ -63,25 +55,36 @@ def main():
             ),
         },
         objects={
-            GameId(1): MARINE,
-            GameId(2): MARINE,
-            GameId(3): WALL,
-            GameId(4): WALL,
-            GameId(5): WALL,
-            GameId(6): WALL,
-            GameId(7): WALL,
-            GameId(8): WALL,
-            GameId(9): WALL,
-            GameId(10): WALL,
-            GameId(11): WALL,
-            GameId(12): WALL,
-            GameId(13): WALL,
+            GameId(1): Marine(
+                name=MarineId('1'),
+                gaze_direction=Direction(-1, -1),
+            ),
+            GameId(2): Marine(
+                name=MarineId('2'),
+                gaze_direction=Direction(1, 1),
+            ),
+            GameId(3): Wall(),
+            GameId(4): Wall(),
+            GameId(5): Wall(),
+            GameId(6): Wall(),
+            GameId(7): Wall(),
+            GameId(8): Wall(),
+            GameId(9): Wall(),
+            GameId(10): Wall(),
+            GameId(11): Wall(),
+            GameId(12): Wall(),
+            GameId(13): Wall(),
         }
     )
     print_board(game.board, objects=game.objects)
     randomizer = Randomizer()
-    while all(map(lambda x: x.alive, game.marines.values())):
-        for game_id in game.marines.keys():
+    marines = {
+        game_id: obj
+        for game_id, obj in game.objects.items()
+        if obj.is_under_control
+    }
+    while all(map(lambda x: x.is_alive, marines.values())):
+        for game_id in marines.keys():
             print(game_id)
             allow_commands = Commands({
                 action.to_command()
@@ -100,7 +103,7 @@ def main():
                 game = command.to_action(game=game).apply()
                 print_board(game.board, objects=game.objects)
                 print_board(game.board, objects=game.objects, mask=knowledge.mask)
-            print(game.marines[game_id].gaze_direction)
+            print(marines[game_id].gaze_direction)
             print('Memory: ', game.memory[game_id])
             input()
 
