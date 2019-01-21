@@ -5,8 +5,6 @@ from dataclasses import dataclass
 
 from core.board import Position, generate_movements, Direction
 from core.game import Game, GameId
-from core.game_objects import Marine
-from core.errors import BaseCoreError
 
 
 class Command(metaclass=ABCMeta):

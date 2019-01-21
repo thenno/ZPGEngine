@@ -1,7 +1,8 @@
 import random
 
 
-class Randomizer(object):
+class Randomizer:
+
     def random(self):
         return random.random()
 
