@@ -4,6 +4,8 @@ from typing import Dict, Set
 from core.board import Board, FOV, Position
 from core.game_objects import GameObject
 from core.memory import Memory
+from core.game_objects import Marine
+from core.errors import BaseCoreError
 
 
 class GameId(int):
@@ -47,3 +49,9 @@ class Game:
             mask=mask,  # mask in knowledge - WTF?
             memory=self.memory[game_id],
         )
+
+    def get_marine(self, game_id: GameId) -> Marine:
+        marine_obj = self.objects[game_id]
+        if not isinstance(marine_obj, Marine):
+            raise BaseCoreError('There is not marine by id %s', game_id)
+        return marine_obj
