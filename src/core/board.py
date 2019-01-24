@@ -28,7 +28,7 @@ class Direction:
     y: int
 
     @staticmethod
-    def from_positions(pos1: Position, pos2: Position):
+    def from_positions(pos1: Position, pos2: Position) -> 'Direction':
         x = pos2.x - pos1.x
         y = pos2.y - pos1.y
         x = 0 if x == 0 else x // abs(x)
@@ -38,13 +38,13 @@ class Direction:
 
 class Board(object):
 
-    def __init__(self, size, board: Dict[Position, Any]=None) -> None:
+    def __init__(self, size, board: Dict[Position, Any]=None):
         if board is None:
             board = {}
         self.board = board
         self.size = size
 
-    def move(self, pos1: Position, pos2: Position):
+    def move(self, pos1: Position, pos2: Position) -> 'Board':
         if pos1 == pos2:
             return self
         board = copy.deepcopy(self.board)
