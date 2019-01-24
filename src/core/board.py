@@ -20,6 +20,7 @@ class Position:
 
 
 FOV = NewType('FOV', Dict[Position, Any])
+PositionMask = NewType('PositionMask', Set[Position])
 
 
 @dataclasses.dataclass(frozen=True)
@@ -55,9 +56,9 @@ class Board(object):
     def is_empty(self, pos: Position) -> bool:
         return not bool(self.board.get(pos))
 
-    def get_position(self, name: int) -> Optional[Position]:
+    def get_position(self, game_id: int) -> Optional[Position]:
         for pos, n in self.board.items():
-            if name == n:
+            if game_id == n:
                 return pos
         return None
 
@@ -73,7 +74,7 @@ class Board(object):
             if position in mask
         })
 
-    def get_fov_mask(self, position: Position) -> Set[Position]:
+    def get_fov_mask(self, position: Position) -> PositionMask:
         def is_visible(pos_to: Position) -> bool:
             line = list(get_line_of_view(position, pos_to))
             for i, pos_for_check in enumerate(line):
@@ -88,7 +89,7 @@ class Board(object):
                 continue
             if is_visible(pos):
                 result.add(pos)
-        return result
+        return PositionMask(result)
 
 
 def get_distance(pos1, pos2) -> Distance:
