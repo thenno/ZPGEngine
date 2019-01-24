@@ -8,7 +8,6 @@ from core.game import (
 from core.board import (
     Board,
     Position,
-    Direction,
 )
 from core.viewer import print_board
 from core.randomizer import Randomizer
@@ -57,11 +56,9 @@ def main():
         objects={
             GameId(1): Marine(
                 name=MarineId('1'),
-                gaze_direction=Direction(-1, -1),
             ),
             GameId(2): Marine(
                 name=MarineId('2'),
-                gaze_direction=Direction(1, 1),
             ),
             GameId(3): Wall(),
             GameId(4): Wall(),
@@ -102,8 +99,7 @@ def main():
             if command in allow_commands:
                 game = command.to_action(game=game).apply()
                 print_board(game.board, objects=game.objects)
-                print_board(game.board, objects=game.objects, mask=knowledge.mask)
-            print(marines[game_id].gaze_direction)
+                print_board(game.board, objects=game.objects, mask=knowledge.senses.vision.mask)
             print('Memory: ', game.memory[game_id])
             input()
 

@@ -52,9 +52,6 @@ class Walk(Action):
         game.board = game.board.move(self._pos_from, self._pos_to)
         game_id = game.board.board[self._pos_to]
         game.memory[game_id].way.append(self._pos_from)
-        marine_obj = deepcopy(game.get_marine(game_id))
-        marine_obj.gaze_direction = Direction.from_positions(self._pos_from, self._pos_to)
-        game.objects[game_id] = marine_obj
         return game
 
     def is_valid(self) -> bool:

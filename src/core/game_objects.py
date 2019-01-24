@@ -1,10 +1,17 @@
 from typing import NewType
-
-from core.board import Direction
 from abc import ABCMeta, abstractmethod
 
-
 MarineId = NewType('MarineId', str)
+
+
+class GameId(int):
+
+    current_id = 0
+
+    @classmethod
+    def next(cls):
+        yield cls.current_id
+        cls.current_id += 1
 
 
 class GameObject(metaclass=ABCMeta):
@@ -24,9 +31,8 @@ class Wall(GameObject):
 
 class Marine(GameObject):
 
-    def __init__(self, name: MarineId, gaze_direction: Direction):
+    def __init__(self, name: MarineId):
         self.name = name
-        self.gaze_direction = gaze_direction
 
     def __eq__(self, other):
         if self.name == other.name:

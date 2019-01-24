@@ -3,11 +3,13 @@ import dataclasses
 from typing import (
     Dict,
     Any,
-    Optional,
     Iterable,
     NewType,
     Set,
 )
+
+from core.game_objects import GameId
+from core.errors import BaseCoreError
 
 
 Distance = NewType('Distance', int)
@@ -39,7 +41,7 @@ class Direction:
 
 class Board(object):
 
-    def __init__(self, size, board: Dict[Position, Any]=None):
+    def __init__(self, size, board: Dict[Position, GameId]=None):
         if board is None:
             board = {}
         self.board = board
@@ -56,11 +58,11 @@ class Board(object):
     def is_empty(self, pos: Position) -> bool:
         return not bool(self.board.get(pos))
 
-    def get_position(self, game_id: int) -> Optional[Position]:
+    def get_position(self, game_id: GameId) -> Position:
         for pos, n in self.board.items():
             if game_id == n:
                 return pos
-        return None
+        raise BaseCoreError('There is nothing by id {0}'.format(game_id))
 
     def is_position_in_board(self, pos: Position) -> bool:
         if (0 <= pos.x < self.size) and (0 <= pos.y < self.size):
