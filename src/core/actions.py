@@ -37,7 +37,7 @@ class CommandWalk(Command):
     pos_from: Position
     pos_to: Position
 
-    def to_action(self, game: Game) -> Action:
+    def to_action(self, game: Game) -> 'Walk':
         return Walk(game=game, pos_to=self.pos_to, pos_from=self.pos_from)
 
 
