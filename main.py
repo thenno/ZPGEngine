@@ -71,7 +71,7 @@ def main():
             GameId(11): Wall(),
             GameId(12): Wall(),
             GameId(13): Wall(),
-        }
+        },
     )
     print_board(game.board, objects=game.objects)
     randomizer = Randomizer()

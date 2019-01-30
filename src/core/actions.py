@@ -3,7 +3,7 @@ from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 
-from core.board import Position, generate_movements, Direction
+from core.board import Position, generate_movements
 from core.game import Game, GameId
 
 
