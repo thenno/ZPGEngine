@@ -2,7 +2,7 @@ import copy
 import dataclasses
 from typing import (
     Dict,
-    Any,
+    Optional,
     Iterable,
     NewType,
     Set,
@@ -21,7 +21,7 @@ class Position:
     y: int
 
 
-FOV = NewType('FOV', Dict[Position, Any])
+FOV = NewType('FOV', Dict[Position, Optional[GameId]])
 PositionMask = NewType('PositionMask', Set[Position])
 
 
@@ -71,9 +71,8 @@ class Board(object):
 
     def get_view(self, mask: Set[Position]) -> FOV:
         return FOV({
-            position: obj
-            for position, obj in self.board.items()
-            if position in mask
+            position: self.board.get(position)
+            for position in mask
         })
 
     def get_fov_mask(self, position: Position) -> PositionMask:

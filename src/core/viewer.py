@@ -1,11 +1,11 @@
 from typing import Optional, Set, List, Dict
 
-from core.board import Board, Position
+from core.board import Board, Position, FOV
 from core.game_objects import Marine, Wall, GameObject
 from core.game import GameId
 
 
-def print_board(board: Board, objects: Dict[GameId, GameObject], mask: Optional[Set[Position]] = None):
+def print_board(board: Board, objects: Dict[GameId, GameObject], fov: FOV = None):
     def generate_board(size: int) -> List[List]:
         replacer = '.'
         return [
@@ -17,10 +17,10 @@ def print_board(board: Board, objects: Dict[GameId, GameObject], mask: Optional[
             printed_board[pos.y][pos.x] = 'm'
         elif isinstance(objects[name], Wall):
             printed_board[pos.y][pos.x] = '#'
-    if mask is not None:
+    if fov is not None:
         for y in range(board.size):
             for x in range(board.size):
-                if Position(x, y) not in mask:
+                if Position(x, y) not in fov:
                     printed_board[y][x] = '?'
     print(' x ' + ''.join(map(str, range(board.size))))
     print('y')

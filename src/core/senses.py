@@ -1,14 +1,12 @@
 from dataclasses import dataclass
-from typing import Set
 
-from core.board import Board, Position, FOV
+from core.board import Board, FOV
 from core.game_objects import GameId
 
 
 @dataclass(frozen=True)
 class Vision:
     fov: FOV
-    mask: Set[Position]
 
 
 @dataclass(frozen=True)
@@ -28,7 +26,6 @@ class Senses:
         mask = board.get_fov_mask(position)
         return Senses(
             vision=Vision(
-                mask=mask,
                 fov=board.get_view(mask)
             ),
             hearing=Hearing(),

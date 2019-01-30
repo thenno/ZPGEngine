@@ -99,7 +99,7 @@ def main():
             if command in allow_commands:
                 game = command.to_action(game=game).apply()
                 print_board(game.board, objects=game.objects)
-                print_board(game.board, objects=game.objects, mask=knowledge.senses.vision.mask)
+                print_board(game.board, objects=game.objects, fov=knowledge.senses.vision.fov)
             print('Memory: ', game.memory[game_id])
             input()
 
