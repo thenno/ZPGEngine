@@ -5,11 +5,6 @@ from core.game_objects import GameId
 
 
 @dataclass(frozen=True)
-class Vision:
-    fov: FOV
-
-
-@dataclass(frozen=True)
 class Hearing:
     pass
 
@@ -17,7 +12,7 @@ class Hearing:
 @dataclass(frozen=True)
 class Senses:
 
-    vision: Vision
+    vision: FOV
     hearing: Hearing
 
     @staticmethod
@@ -25,8 +20,6 @@ class Senses:
         position = board.get_position(game_id)
         mask = board.get_fov_mask(position)
         return Senses(
-            vision=Vision(
-                fov=board.get_view(mask)
-            ),
+            vision=board.get_view(mask),
             hearing=Hearing(),
         )
