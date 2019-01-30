@@ -12,7 +12,6 @@ from core.senses import Senses
 @dataclass(frozen=True)
 class MarineKnowledge:
     game_id: GameId
-    board_size: int
     position: Position
     memory: Memory
     senses: Senses
@@ -31,7 +30,6 @@ class Game:
         return MarineKnowledge(
             game_id=game_id,
             position=position,
-            board_size=self.board.size,
             senses=senses,
             memory=self.memory[game_id],
         )
