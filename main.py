@@ -1,107 +1,119 @@
 #!/usr/bin/env python3
 
-from core.ai import choose_command
-from core.game import (
-    Game,
-    GameId,
-)
-from core.board import (
-    Board,
-    Position,
-)
-from core.viewer import print_board
-from core.randomizer import Randomizer
-from core.game_objects import (
-    Marine,
-    MarineId,
-    Wall,
-)
-from core.actions import (
-    Commands,
-    get_allow_actions,
-)
-from core.memory import Memory
+
+from typing import Dict, NewType, Type, Callable
+from dataclasses import dataclass
+import random
+import itertools
+import functools
+from copy import deepcopy
+
+
+class Entity:
+    pass
+
+
+class Component:
+    pass
+
+
+@dataclass(frozen=False)
+class Position(Component):
+    x: int
+    y: int
+
+
+@dataclass(frozen=True)
+class Visible(Component):
+    char: str
+
+
+@dataclass(frozen=True)
+class Name(Component):
+    name: str
+
+
+@dataclass(frozen=True)
+class Event:
+    func: Callable
+    entity: int
+    component_class: Type[Component]
+
+
+class World:
+    def __init__(self, components):
+        self._components = components
+
+    def filter(self, component_types):
+        for component_type in component_types:
+            for entity, _ in enumerate(self._components[component_type]):
+                if self._components[component_type][entity] is not None:
+                    yield entity
+
+    def new_state(self, events):
+        components = deepcopy(self._components)
+        get_key = lambda x: (x.entity, x.component_class)
+        for key, events in itertools.groupby(sorted(events, key=get_key), key=get_key):
+            entity, component_class = key
+            components[component_class][entity] = functools.reduce(
+                lambda r, e: e.func(r),
+                events,
+                components[component_class][entity],
+            )
+        return World(components)
+
+
+class Move:
+    def __init__(self, dx, dy):
+        self._dx = dx
+        self._dy = dy
+
+    def __call__(self, position):
+        return Position(position.x + self._dx, position.y + self._dy)
+
+
+class MoveSystem:
+    def __init__(self, world: World):
+        self._world = world
+
+    def process(self):
+        for entity in self._world.filter([Position]):
+            yield Event(
+                entity=entity,
+                component_class=Position,
+                func=Move(random.randint(0, 1), random.randint(0, 1))
+            )
 
 
 def main():
-    game = Game(
-        board=Board(
-            size=16,
-            board={
-                Position(0, 15): GameId(1),
-                Position(15, 0): GameId(2),
-                Position(0, 5): GameId(3),
-                Position(1, 5): GameId(4),
-                Position(2, 5): GameId(5),
-                Position(3, 5): GameId(6),
-                Position(4, 5): GameId(7),
-                Position(5, 5): GameId(8),
-                Position(8, 5): GameId(9),
-                Position(10, 5): GameId(10),
-                Position(11, 5): GameId(11),
-                Position(12, 5): GameId(12),
-                Position(13, 5): GameId(13),
-            },
-        ),
-        memory={
-            GameId(1): Memory(
-                way=[],
-                enemies={},
-            ),
-            GameId(2): Memory(
-                way=[],
-                enemies={},
-            ),
-        },
-        objects={
-            GameId(1): Marine(
-                name=MarineId('1'),
-            ),
-            GameId(2): Marine(
-                name=MarineId('2'),
-            ),
-            GameId(3): Wall(),
-            GameId(4): Wall(),
-            GameId(5): Wall(),
-            GameId(6): Wall(),
-            GameId(7): Wall(),
-            GameId(8): Wall(),
-            GameId(9): Wall(),
-            GameId(10): Wall(),
-            GameId(11): Wall(),
-            GameId(12): Wall(),
-            GameId(13): Wall(),
-        },
-    )
-    print_board(game.board, objects=game.objects)
-    randomizer = Randomizer()
-    marines = {
-        game_id: obj
-        for game_id, obj in game.objects.items()
-        if obj.is_under_control
+    components = {
+        Name: [
+            Name('test1'),
+            Name('test2'),
+            Name('hidden'),
+        ],
+        Position: [
+            Position(0, 9),
+            Position(0, 0),
+            None,
+        ],
+        Visible: [
+            Visible('x'),
+            Visible('y'),
+            None,
+        ],
     }
-    while all(map(lambda x: x.is_alive, marines.values())):
-        for game_id in marines.keys():
-            print(game_id)
-            allow_commands = Commands({
-                action.to_command()
-                for action in get_allow_actions(
-                    game_id=game_id,
-                    game=game,
-                )
-            })
-            knowledge = game.get_marine_knowledge(game_id)
-            command = choose_command(
-                commands=allow_commands,
-                knowledge=knowledge,
-                randomizer=randomizer,
-            )
-            if command in allow_commands:
-                game = command.to_action(game=game).apply()
-                print_board(game.board, objects=game.objects)
-                print_board(game.board, objects=game.objects, fov=knowledge.senses.vision)
-            print('Memory: ', game.memory[game_id])
-            input()
+    world = World(components)
+    systems = [
+        MoveSystem,
+    ]
+    import pprint
+    pprint.pprint(world._components)
+    events = []
+    for system in systems:
+        events += list(system(world).process())
+    world = world.new_state(events)
+    pprint.pprint(world._components)
 
 
 if __name__ == '__main__':
