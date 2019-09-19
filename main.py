@@ -5,7 +5,7 @@ import itertools
 import functools
 import pprint
 
-from typing import Dict, NewType, Type, Callable
+from typing import Type, Callable
 from dataclasses import dataclass
 from copy import deepcopy
 
@@ -37,6 +37,9 @@ class ComponentManager:
     def clone(self):
         return ComponentManager(deepcopy(self._components))
 
+    def serialize(self):
+        return self._components
+
 
 @dataclass(frozen=True)
 class Position(Component):
@@ -62,16 +65,16 @@ class Event:
 
 
 class World:
-    def __init__(self, components, systems):
-        self._component_manager = components
+    def __init__(self, cm: ComponentManager, systems):
+        self._cm = cm
         self._systems = systems
 
     def step(self):
         for system in self._systems:
-            yield from system(self._component_manager).process()
+            yield from system(self._cm).process()
 
     def new_state(self, events):
-        components = self._component_manager.clone()
+        components = self._cm.clone()
         get_key = lambda x: (x.entity, x.component_class)
         for (entity, component_class), events in itertools.groupby(sorted(events, key=get_key), key=get_key):
             component = functools.reduce(
@@ -81,6 +84,9 @@ class World:
             )
             components.set(entity, component_class, component)
         return World(components, self._systems)
+
+    def serialize(self):
+        return self._cm.serialize()
 
 
 class Move:
@@ -93,11 +99,11 @@ class Move:
 
 
 class MoveSystem:
-    def __init__(self, components):
-        self._components = components
+    def __init__(self, cm: ComponentManager):
+        self._cm = cm
 
     def process(self):
-        for entity in self._components.filter([Position]):
+        for entity in self._cm.filter([Position]):
             yield Event(
                 entity=entity,
                 component_class=Position,
@@ -130,8 +136,8 @@ def main():
     world = World(cm, systems)
     events = world.step()
     new_world = world.new_state(events)
-    pprint.pprint(world._component_manager._components)
-    pprint.pprint(new_world._component_manager._components)
+    pprint.pprint(world.serialize())
+    pprint.pprint(new_world.serialize())
 
 
 if __name__ == '__main__':
