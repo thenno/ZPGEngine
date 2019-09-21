@@ -57,6 +57,10 @@ class Name(Component):
     name: str
 
 
+class Movable:
+    pass
+
+
 @dataclass(frozen=True)
 class Event:
     func: Callable
@@ -128,6 +132,11 @@ def main():
             Visible('y'),
             None,
         ],
+        Movable: [
+            Movable(),
+            Movable(),
+            None,
+        ]
     }
     cm = ComponentManager(components)
     systems = [
