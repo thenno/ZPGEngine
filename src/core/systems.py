@@ -135,9 +135,9 @@ class PermittedPositionsSystem(System):
 class CleanSystem(System):
     def process(self):
         for cls in self._cm.get_need_clean():
-            for entity in self._cm.entities_count:
+            for entity in range(self._cm.entities_count):
                 yield Event(
                     entity=entity,
-                    component_class=PermittedPositions,
+                    component_class=cls,
                     func=lambda x: None,
                 )
