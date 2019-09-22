@@ -1,6 +1,6 @@
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Set
 from collections import defaultdict
 
 
@@ -96,5 +96,20 @@ class AI(Component):
 
 
 @dataclass(frozen=True)
+class Vision(Component):
+    pass
+
+
+@dataclass(frozen=True)
+class FOV(Component, AutoClean):
+    fov: Set
+
+
+@dataclass(frozen=True)
 class Actions(Component, AutoClean):
     actions: Tuple
+
+
+@dataclass(frozen=True)
+class Viewer:
+    pass
