@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from core.components import Component, ComponentManager, Position, Visible, Name, Movable
-from core.systems import World, MoveSystem, ViewSystem, Event
+from core.components import ComponentManager, Position, Visible, Name, Movable
+from core.systems import World, MoveSystem, ViewSystem
 
 
 def main():
@@ -29,8 +29,8 @@ def main():
     }
     cm = ComponentManager(components)
     systems = [
-        MoveSystem,
         ViewSystem,
+        MoveSystem,
     ]
     world = World(cm, systems)
     for i in range(4):
