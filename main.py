@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
 
-from core.components import ComponentManager, Position, Visible, Name, Movable
-from core.systems import World, MoveSystem, ViewSystem
+from core.components import (
+    ComponentManager,
+    Position,
+    Visible,
+    Name,
+    Movable,
+    PermittedPositions,
+)
+from core.systems import (
+    World,
+    MoveSystem,
+    ViewSystem,
+    PermittedPositionsSystem,
+    CleanSystem,
+)
 
 
 def main():
@@ -25,15 +38,22 @@ def main():
             Movable(),
             Movable(),
             None,
+        ],
+        PermittedPositions: [
+            None,
+            None,
+            None,
         ]
     }
     cm = ComponentManager(components)
     systems = [
         ViewSystem,
+        PermittedPositionsSystem,
         MoveSystem,
+        CleanSystem,
     ]
     world = World(cm, systems)
-    for i in range(4):
+    for i in range(10):
         events = world.step()
         world = world.new_state(events)
 

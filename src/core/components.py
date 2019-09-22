@@ -1,8 +1,13 @@
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import List
 
 
 class Component:
+    pass
+
+
+class AutoClean:
     pass
 
 
@@ -24,6 +29,16 @@ class ComponentManager:
 
     def get(self, entity, component_class):
         return self._components[component_class][entity]
+
+    def get_need_clean(self):
+        for component_class in self._components:
+            if isinstance(component_class, AutoClean):
+                yield component_class
+
+    @property
+    def entities_count(self):
+        for entities in self._components.values():
+            return len(entities)
 
     def set(self, entity, component_class, value):
         self._components[component_class][entity] = value
@@ -51,5 +66,16 @@ class Name(Component):
     name: str
 
 
-class Movable:
+@dataclass(frozen=True)
+class NextPosition(Component, AutoClean):
+    x: int
+    y: int
+
+
+@dataclass(frozen=True)
+class PermittedPositions(Component, AutoClean):
+    positions: List[Position]
+
+
+class Movable(Component, AutoClean):
     pass

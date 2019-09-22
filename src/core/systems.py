@@ -1,14 +1,21 @@
 import functools
 import itertools
 import random
-from typing import Type, Callable
+from typing import Type, Callable, NewType, Iterable, List
 from dataclasses import dataclass
 
-from core.components import ComponentManager, Position, Visible
-from core.components import Component
+from core.components import (
+    ComponentManager,
+    Position,
+    Visible,
+    Component,
+    PermittedPositions,
+    Movable,
+)
 
 
 BOARD_SIZE = 10
+Distance = NewType('Distance', int)
 
 
 @dataclass(frozen=True)
@@ -29,10 +36,11 @@ class World:
             if result is not None:
                 yield from system(self._cm).process()
 
-    def new_state(self, events):
+    def new_state(self, events) -> 'World':
         components = self._cm.clone()
-        get_key = lambda x: (x.entity, x.component_class)
-        for (entity, component_class), events in itertools.groupby(sorted(events, key=get_key), key=get_key):
+        get_sort_key = lambda x: (x.entity, str(x.component_class))
+        get_group_key = lambda x: (x.entity, x.component_class)
+        for (entity, component_class), events in itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key):
             component = functools.reduce(
                 lambda r, e: e.func(r),
                 events,
@@ -58,10 +66,25 @@ class Move:
         return position
 
 
-class MoveSystem:
+class SetPermittedPositions:
+    def __init__(self, positions: List[Position]):
+        self._positions = positions
+
+    def __call__(self, positions):
+        if positions is None:
+            positions = PermittedPositions([])
+        return PermittedPositions(positions.positions + self._positions)
+
+
+class System:
     def __init__(self, cm: ComponentManager):
         self._cm = cm
 
+    def process(self) -> Iterable[Event]:
+        pass
+
+
+class MoveSystem(System):
     def process(self):
         for entity in self._cm.filter([Position]):
             yield Event(
@@ -71,10 +94,7 @@ class MoveSystem:
             )
 
 
-class ViewSystem:
-    def __init__(self, cm: ComponentManager):
-        self._cm = cm
-
+class ViewSystem(System):
     def _generate_board(self, size: int):
         replacer = '.'
         return [
@@ -93,3 +113,31 @@ class ViewSystem:
             line_serialized = map(str, line)
             print(str(number).zfill(2) + ' ' + ''.join(line_serialized))
         print()
+
+
+class PermittedPositionsSystem(System):
+    def _generate_movements(self, pos: Position, distance: Distance = Distance(1)) -> Iterable[Position]:
+        for mx in range(-distance, distance + 1):
+            for my in range(-distance, distance + 1):
+                new_pos = Position(mx + pos.x, my + pos.y)
+                yield new_pos
+
+    def process(self):
+        for entity in self._cm.filter([Position, Movable]):
+            positions = self._generate_movements(self._cm.get(entity, Position))
+            yield Event(
+                entity=entity,
+                component_class=PermittedPositions,
+                func=SetPermittedPositions(list(positions)),
+            )
+
+
+class CleanSystem(System):
+    def process(self):
+        for cls in self._cm.get_need_clean():
+            for entity in self._cm.entities_count:
+                yield Event(
+                    entity=entity,
+                    component_class=PermittedPositions,
+                    func=lambda x: None,
+                )
