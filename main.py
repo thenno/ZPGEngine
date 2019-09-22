@@ -10,6 +10,9 @@ from dataclasses import dataclass
 from copy import deepcopy
 
 
+BOARD_SIZE = 10
+
+
 class Entity:
     pass
 
@@ -31,7 +34,8 @@ class ComponentManager:
                 if self._components[component_class][entity] is not None
             }
             result = entities if result is None else result & entities
-        yield from result
+        if result is not None:
+            yield from result
 
     def get(self, entity, component_class):
         return self._components[component_class][entity]
@@ -80,7 +84,9 @@ class World:
 
     def step(self):
         for system in self._systems:
-            yield from system(self._cm).process()
+            result = system(self._cm).process()
+            if result is not None:
+                yield from system(self._cm).process()
 
     def new_state(self, events):
         components = self._cm.clone()
@@ -104,7 +110,11 @@ class Move:
         self._dy = dy
 
     def __call__(self, position):
-        return Position(position.x + self._dx, position.y + self._dy)
+        x = position.x + self._dx
+        y = position.y + self._dy
+        if 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE:
+            return Position(position.x + self._dx, position.y + self._dy)
+        return position
 
 
 class MoveSystem:
@@ -118,6 +128,30 @@ class MoveSystem:
                 component_class=Position,
                 func=Move(random.randint(-1, 1), random.randint(-1, 1))
             )
+
+
+class ViewSystem:
+    def __init__(self, cm: ComponentManager):
+        self._cm = cm
+
+    def _generate_board(self, size: int):
+        replacer = '.'
+        return [
+            [replacer] * size for _ in range(size)
+        ]
+
+    def process(self):
+        printed_board = self._generate_board(BOARD_SIZE)
+        for entity in self._cm.filter([Position, Visible]):
+            position = self._cm.get(entity, Position)
+            char = self._cm.get(entity, Visible)
+            printed_board[position.y][position.x] = char.char
+        print(' x ' + ''.join(map(str, range(BOARD_SIZE))))
+        print('y')
+        for number, line in zip(range(BOARD_SIZE), printed_board):
+            line_serialized = map(str, line)
+            print(str(number).zfill(2) + ' ' + ''.join(line_serialized))
+        print()
 
 
 def main():
@@ -146,12 +180,12 @@ def main():
     cm = ComponentManager(components)
     systems = [
         MoveSystem,
+        ViewSystem,
     ]
     world = World(cm, systems)
-    events = world.step()
-    new_world = world.new_state(events)
-    pprint.pprint(world.serialize())
-    pprint.pprint(new_world.serialize())
+    for i in range(4):
+        events = world.step()
+        world = world.new_state(events)
 
 
 if __name__ == '__main__':
