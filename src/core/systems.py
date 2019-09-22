@@ -9,8 +9,8 @@ from core.components import (
     Position,
     Visible,
     Component,
-    PermittedPositions,
     Movable,
+    Actions,
 )
 
 
@@ -81,26 +81,46 @@ class System:
         pass
 
 
-class MoveSystem(System):
-    def process(self):
-        for entity in self._manager.entities.filter([Position]):
-            yield Event(
-                entity=entity,
-                component_class=Position,
-                func=Move(self._manager, random.randint(-1, 1), random.randint(-1, 1))
-            )
-
-
 class AISystem(System):
     def process(self):
-        for entity in self._manager.entities.filter([Movable, Position]):
-            directions = self._manager.entities.get(entity, PermittedPositions).positions
-            direction = random.choice(directions)
+        for entity in self._manager.entities.filter([Actions]):
+            actions = self._manager.entities.get(entity, Actions).actions
+            action = random.choice(actions)
+            func, args = action
             yield Event(
                 entity=entity,
                 component_class=Position,
-                func=Move(*direction)
+                func=func(self._manager, *args),
             )
+
+
+class SetActions:
+    def __init__(self, func, args):
+        self._func = func
+        self._args = args
+
+    def __call__(self, actions):
+        if actions is None:
+            actions = Actions(tuple())
+        return Actions(actions.actions + ((self._func, self._args),))
+
+
+class AllowActionSystem(System):
+    def _generate_directions(self):
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                if dx == dy == 0:
+                    continue
+                yield dx, dy
+
+    def process(self):
+        for entity in self._manager.entities.filter([Movable]):
+            for dx, dy in self._generate_directions():
+                yield Event(
+                    entity=entity,
+                    component_class=Actions,
+                    func=SetActions(func=Move, args=(dx, dy))
+                )
 
 
 class ViewSystem(System):

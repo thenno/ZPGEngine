@@ -6,13 +6,15 @@ from core.components import (
     Visible,
     Name,
     Movable,
-    PermittedPositions,
+    AI,
+    Actions,
 )
 from core.systems import (
     World,
-    MoveSystem,
+    AISystem,
     ViewSystem,
     CleanSystem,
+    AllowActionSystem,
 )
 
 
@@ -38,7 +40,12 @@ def main():
             Movable(),
             None,
         ],
-        PermittedPositions: [
+        AI: [
+            AI(),
+            AI(),
+            None,
+        ],
+        Actions: [
             None,
             None,
             None,
@@ -46,12 +53,13 @@ def main():
     }
     cm = Manager(components)
     systems = [
-        ViewSystem,
-        MoveSystem,
         CleanSystem,
+        ViewSystem,
+        AllowActionSystem,
+        AISystem,
     ]
     world = World(cm, systems)
-    for i in range(10):
+    for i in range(30):
         events = world.step()
         world = world.new_state(events)
 
