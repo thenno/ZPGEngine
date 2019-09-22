@@ -86,15 +86,15 @@ class Name(Component):
 
 
 @dataclass(frozen=True)
-class NextPosition(Component, AutoClean):
-    x: int
-    y: int
+class Movable(Component):
+    pass
 
 
 @dataclass(frozen=True)
-class PermittedPositions(Component, AutoClean):
-    positions: Tuple[Position, ...]
-
-
-class Movable(Component, AutoClean):
+class AI(Component):
     pass
+
+
+@dataclass(frozen=True)
+class Actions(Component, AutoClean):
+    actions: Tuple
