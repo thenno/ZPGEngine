@@ -12,7 +12,6 @@ from core.systems import (
     World,
     MoveSystem,
     ViewSystem,
-    PermittedPositionsSystem,
     CleanSystem,
 )
 
@@ -48,7 +47,6 @@ def main():
     cm = Manager(components)
     systems = [
         ViewSystem,
-        PermittedPositionsSystem,
         MoveSystem,
         CleanSystem,
     ]

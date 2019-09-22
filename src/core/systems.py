@@ -52,26 +52,25 @@ class World:
 
 
 class Move:
-    def __init__(self, dx, dy):
+    def __init__(self, manager, dx, dy):
         self._dx = dx
         self._dy = dy
+        self._manager = manager
+
+    def _is_valid(self, position):
+        if not (0 <= position.x < BOARD_SIZE and 0 <= position.y < BOARD_SIZE):
+            return False
+        if self._manager.components.get(position):
+            return False
+        return True
 
     def __call__(self, position):
         x = position.x + self._dx
         y = position.y + self._dy
-        if 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE:
-            return Position(position.x + self._dx, position.y + self._dy)
+        new_position = Position(x, y)
+        if self._is_valid(new_position):
+            return new_position
         return position
-
-
-class SetPermittedPositions:
-    def __init__(self, positions: Tuple[Position, ...]):
-        self._positions = positions
-
-    def __call__(self, positions: Tuple[Position, ...]):
-        if positions is None:
-            positions = PermittedPositions(tuple())
-        return PermittedPositions(positions=positions.positions + self._positions)
 
 
 class System:
@@ -88,7 +87,19 @@ class MoveSystem(System):
             yield Event(
                 entity=entity,
                 component_class=Position,
-                func=Move(random.randint(-1, 1), random.randint(-1, 1))
+                func=Move(self._manager, random.randint(-1, 1), random.randint(-1, 1))
+            )
+
+
+class AISystem(System):
+    def process(self):
+        for entity in self._manager.entities.filter([Movable, Position]):
+            directions = self._manager.entities.get(entity, PermittedPositions).positions
+            direction = random.choice(directions)
+            yield Event(
+                entity=entity,
+                component_class=Position,
+                func=Move(*direction)
             )
 
 
@@ -111,35 +122,6 @@ class ViewSystem(System):
             line_serialized = map(str, line)
             print(str(number).zfill(2) + ' ' + ''.join(line_serialized))
         print()
-
-
-class PermittedPositionsSystem(System):
-    def _generate_movements(self, pos: Position, distance: Distance = Distance(1)) -> Iterable[Position]:
-        for mx in range(-distance, distance + 1):
-            for my in range(-distance, distance + 1):
-                new_pos = Position(mx + pos.x, my + pos.y)
-                yield new_pos
-
-    def _is_valid(self, position):
-        if not self._manager.components.get(position):
-            return True
-        if 0 <= position.x < BOARD_SIZE and 0 <= position.y < BOARD_SIZE:
-            return True
-        return False
-
-    def process(self):
-        for entity in self._manager.entities.filter([Position, Movable]):
-            positions = self._generate_movements(self._manager.entities.get(entity, Position))
-            positions = (
-                position
-                for position in positions
-                if self._is_valid(position)
-            )
-            yield Event(
-                entity=entity,
-                component_class=PermittedPositions,
-                func=SetPermittedPositions(tuple(positions)),
-            )
 
 
 class CleanSystem(System):
