@@ -3,7 +3,6 @@
 import random
 import itertools
 import functools
-import pprint
 
 from typing import Type, Callable
 from dataclasses import dataclass
@@ -11,10 +10,6 @@ from copy import deepcopy
 
 
 BOARD_SIZE = 10
-
-
-class Entity:
-    pass
 
 
 class Component:
