@@ -32,7 +32,7 @@ class ComponentManager:
 
     def get_need_clean(self):
         for component_class in self._components:
-            if isinstance(component_class, AutoClean):
+            if issubclass(component_class, AutoClean):
                 yield component_class
 
     @property
