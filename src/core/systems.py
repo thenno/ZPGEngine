@@ -1,11 +1,11 @@
 import functools
 import itertools
 import random
-from typing import Type, Callable, NewType, Iterable, List
+from typing import Type, Callable, NewType, Iterable, Tuple
 from dataclasses import dataclass
 
 from core.components import (
-    ComponentManager,
+    Manager,
     Position,
     Visible,
     Component,
@@ -26,31 +26,29 @@ class Event:
 
 
 class World:
-    def __init__(self, cm: ComponentManager, systems):
-        self._cm = cm
+    def __init__(self, manager: Manager, systems):
+        self._manager = manager
         self._systems = systems
 
     def step(self):
         for system in self._systems:
-            result = system(self._cm).process()
-            if result is not None:
-                yield from system(self._cm).process()
+            yield from system(self._manager).process() or []
 
     def new_state(self, events) -> 'World':
-        components = self._cm.clone()
+        manager = self._manager.clone()
         get_sort_key = lambda x: (x.entity, str(x.component_class))
         get_group_key = lambda x: (x.entity, x.component_class)
         for (entity, component_class), events in itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key):
             component = functools.reduce(
                 lambda r, e: e.func(r),
                 events,
-                components.get(entity=entity, component_class=component_class),
+                manager.entities.get(entity=entity, component_class=component_class),
             )
-            components.set(entity, component_class, component)
-        return World(components, self._systems)
+            manager.entities.set(entity, component_class, component)
+        return World(manager, self._systems)
 
     def serialize(self):
-        return self._cm.serialize()
+        return self._manager.serialize()
 
 
 class Move:
@@ -67,18 +65,18 @@ class Move:
 
 
 class SetPermittedPositions:
-    def __init__(self, positions: List[Position]):
+    def __init__(self, positions: Tuple[Position, ...]):
         self._positions = positions
 
-    def __call__(self, positions):
+    def __call__(self, positions: Tuple[Position, ...]):
         if positions is None:
-            positions = PermittedPositions([])
-        return PermittedPositions(positions.positions + self._positions)
+            positions = PermittedPositions(tuple())
+        return PermittedPositions(positions=positions.positions + self._positions)
 
 
 class System:
-    def __init__(self, cm: ComponentManager):
-        self._cm = cm
+    def __init__(self, manager: Manager):
+        self._manager = manager
 
     def process(self) -> Iterable[Event]:
         pass
@@ -86,7 +84,7 @@ class System:
 
 class MoveSystem(System):
     def process(self):
-        for entity in self._cm.filter([Position]):
+        for entity in self._manager.entities.filter([Position]):
             yield Event(
                 entity=entity,
                 component_class=Position,
@@ -103,9 +101,9 @@ class ViewSystem(System):
 
     def process(self):
         printed_board = self._generate_board(BOARD_SIZE)
-        for entity in self._cm.filter([Position, Visible]):
-            position = self._cm.get(entity, Position)
-            char = self._cm.get(entity, Visible)
+        for entity in self._manager.entities.filter([Position, Visible]):
+            position = self._manager.entities.get(entity, Position)
+            char = self._manager.entities.get(entity, Visible)
             printed_board[position.y][position.x] = char.char
         print(' x ' + ''.join(map(str, range(BOARD_SIZE))))
         print('y')
@@ -123,19 +121,19 @@ class PermittedPositionsSystem(System):
                 yield new_pos
 
     def process(self):
-        for entity in self._cm.filter([Position, Movable]):
-            positions = self._generate_movements(self._cm.get(entity, Position))
+        for entity in self._manager.entities.filter([Position, Movable]):
+            positions = self._generate_movements(self._manager.entities.get(entity, Position))
             yield Event(
                 entity=entity,
                 component_class=PermittedPositions,
-                func=SetPermittedPositions(list(positions)),
+                func=SetPermittedPositions(tuple(positions)),
             )
 
 
 class CleanSystem(System):
     def process(self):
-        for cls in self._cm.get_need_clean():
-            for entity in range(self._cm.entities_count):
+        for cls in self._manager.components.get_need_clean():
+            for entity in range(self._manager.entities.count):
                 yield Event(
                     entity=entity,
                     component_class=cls,

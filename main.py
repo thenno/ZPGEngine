@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from core.components import (
-    ComponentManager,
+    Manager,
     Position,
     Visible,
     Name,
@@ -45,7 +45,7 @@ def main():
             None,
         ]
     }
-    cm = ComponentManager(components)
+    cm = Manager(components)
     systems = [
         ViewSystem,
         PermittedPositionsSystem,
