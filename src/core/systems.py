@@ -120,9 +120,21 @@ class PermittedPositionsSystem(System):
                 new_pos = Position(mx + pos.x, my + pos.y)
                 yield new_pos
 
+    def _is_valid(self, position):
+        if not self._manager.components.get(position):
+            return True
+        if 0 <= position.x < BOARD_SIZE and 0 <= position.y < BOARD_SIZE:
+            return True
+        return False
+
     def process(self):
         for entity in self._manager.entities.filter([Position, Movable]):
             positions = self._generate_movements(self._manager.entities.get(entity, Position))
+            positions = (
+                position
+                for position in positions
+                if self._is_valid(position)
+            )
             yield Event(
                 entity=entity,
                 component_class=PermittedPositions,

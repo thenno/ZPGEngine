@@ -47,6 +47,9 @@ class Components:
             for entity, component in enumerate(components):
                 self._components[component].append(entity)
 
+    def get(self, component):
+        return self._components[component]
+
     def get_need_clean(self):
         for component_class in self._entities:
             if issubclass(component_class, AutoClean):
