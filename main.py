@@ -11,6 +11,7 @@ from core.components import (
     FOV,
     Vision,
     Viewer,
+    UnderUserControl,
 )
 from core.systems import (
     World,
@@ -19,6 +20,7 @@ from core.systems import (
     CleanupSystem,
     AllowActionSystem,
     FOVSystem,
+    UserControlSystem,
 )
 
 
@@ -27,7 +29,6 @@ def main():
         Name: [
             Name('test1'),
             Name('test2'),
-            Name('hidden'),
             Name('wall'),
             Name('wall'),
             Name('wall'),
@@ -38,7 +39,6 @@ def main():
             Position(4, 4),
             Position(5, 4),
             Position(6, 4),
-            None,
         ],
         Visible: [
             Visible('x'),
@@ -46,7 +46,6 @@ def main():
             Visible('#'),
             Visible('#'),
             Visible('#'),
-            None,
         ],
         Movable: [
             Movable(),
@@ -54,18 +53,22 @@ def main():
             None,
             None,
             None,
-            None,
         ],
         AI: [
+            None,
             AI(),
-            AI(),
+            None,
+            None,
+            None,
+        ],
+        UnderUserControl: [
+            UnderUserControl(),
             None,
             None,
             None,
             None,
         ],
         Actions: [
-            None,
             None,
             None,
             None,
@@ -78,12 +81,10 @@ def main():
             None,
             None,
             None,
-            None,
         ],
         Vision: [
             Vision(),
             Vision(),
-            None,
             None,
             None,
             None,
@@ -94,16 +95,16 @@ def main():
             None,
             None,
             None,
-            None,
-        ]
+        ],
     }
     cm = Manager(components)
     systems = [
         CleanupSystem,
         FOVSystem,
-        ViewSystem,
         AllowActionSystem,
         AISystem,
+        UserControlSystem,
+        ViewSystem,
     ]
     world = World(cm, systems)
     for i in range(30):

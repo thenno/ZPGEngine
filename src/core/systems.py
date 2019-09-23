@@ -1,7 +1,7 @@
 import functools
 import itertools
 import random
-from typing import Type, Callable, NewType, Iterable, Tuple
+from typing import Type, Callable, NewType, Iterable
 from dataclasses import dataclass
 
 from core.components import (
@@ -13,6 +13,9 @@ from core.components import (
     Actions,
     FOV,
     Vision,
+    Viewer,
+    UnderUserControl,
+    AI,
 )
 
 
@@ -85,7 +88,7 @@ class System:
 
 class AISystem(System):
     def process(self):
-        for entity in self._manager.entities.filter([Actions]):
+        for entity in self._manager.entities.filter([Actions, AI]):
             actions = self._manager.entities.get(entity, Actions).actions
             action = random.choice(actions)
             func, args = action
@@ -93,6 +96,26 @@ class AISystem(System):
                 entity=entity,
                 component_class=Position,
                 func=func(self._manager, *args),
+            )
+
+
+class UserControlSystem(System):
+    def process(self):
+        for entity in self._manager.entities.filter([UnderUserControl, Movable]):
+            result = {
+                'w': (0, -1),
+                'a': (-1, 0),
+                's': (0, 1),
+                'd': (1, 0),
+                'wa': (-1, -1),
+                'wd': (1, -1),
+                'sa': (-1, 1),
+                'sd': (1, 1),
+            }[input()]
+            yield Event(
+                entity=entity,
+                component_class=Position,
+                func=Move(self._manager, *result)
             )
 
 
@@ -113,7 +136,8 @@ class SetFOV:
 
     def __call__(self, fov):
         if fov is None:
-            fov = FOV(set())
+            fov = FOV(frozenset())
+        return FOV(fov.fov | self._fov)
 
 
 class AllowActionSystem(System):
@@ -148,6 +172,12 @@ class ViewSystem(System):
             position = self._manager.entities.get(entity, Position)
             char = self._manager.entities.get(entity, Visible)
             printed_board[position.y][position.x] = char.char
+        for entity in self._manager.entities.filter([Viewer, FOV]):
+            fov |= self._manager.entities.get(entity, FOV).fov
+        for y in range(BOARD_SIZE):
+            for x in range(BOARD_SIZE):
+                if Position(x, y) not in fov:
+                    printed_board[y][x] = '?'
         print(' x ' + ''.join(map(str, range(BOARD_SIZE))))
         print('y')
         for number, line in zip(range(BOARD_SIZE), printed_board):
@@ -169,7 +199,7 @@ class CleanupSystem(System):
 
 class FOVSystem(System):
     def process(self):
-        for entity in self._manager.entities.filter([Vision]):
+        for entity in self._manager.entities.filter([Vision, Position]):
             position = self._manager.entities.get(entity, Position)
             fov = self._get_fov_mask(position)
             yield Event(
@@ -178,7 +208,7 @@ class FOVSystem(System):
                 func=SetFOV(fov),
             )
 
-    def _generate_movements(self, pos: Position, distance: Distance = Distance(1)) -> Iterable[Position]:
+    def _generate_movements(self, pos: Position, distance: Distance) -> Iterable[Position]:
         for mx in range(-distance, distance + 1):
             for my in range(-distance, distance + 1):
                 new_pos = Position(mx + pos.x, my + pos.y)
@@ -192,13 +222,14 @@ class FOVSystem(System):
                     return False
             return True
 
-        positions = self._generate_movements(position, distance=Distance(5))
+        positions = self._generate_movements(position, distance=Distance(3))
         result = set()
         for pos in positions:
-            if not self._manager.components.get(pos):
+            if not (0 <= pos.x < BOARD_SIZE and 0 <= pos.y < BOARD_SIZE):
                 continue
-            if is_visible(pos):
-                result.add(pos)
+#            if not is_visible(pos):
+#                continue
+            result.add(pos)
         return result
 
     def _get_line_of_view(self, pos1: Position, pos2: Position) -> Iterable[Position]:
