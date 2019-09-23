@@ -100,16 +100,15 @@ def main():
     cm = Manager(components)
     systems = [
         CleanupSystem,
-        FOVSystem,
         AllowActionSystem,
         AISystem,
         UserControlSystem,
+        FOVSystem,
         ViewSystem,
     ]
     world = World(cm, systems)
     for i in range(30):
-        events = world.step()
-        world = world.new_state(events)
+        world = world.step()
 
 
 if __name__ == '__main__':
