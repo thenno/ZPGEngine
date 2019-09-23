@@ -35,21 +35,24 @@ class World:
         self._manager = manager
         self._systems = systems
 
-    def step(self):
+    def _process(self):
         for system in self._systems:
-            yield from system(self._manager).process() or []
+            yield system(self._manager).process() or []
 
-    def new_state(self, events) -> 'World':
-        manager = self._manager.clone()
-        get_sort_key = lambda x: (x.entity, str(x.component_class))
-        get_group_key = lambda x: (x.entity, x.component_class)
-        for (entity, component_class), events in itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key):
-            component = functools.reduce(
-                lambda r, e: e.func(r),
-                events,
-                manager.entities.get(entity=entity, component_class=component_class),
-            )
-            manager.entities.set(entity, component_class, component)
+    def step(self) -> 'World':
+        manager = self._manager
+        for system in self._systems:
+            manager = manager.clone()
+            events = system(manager).process() or []
+            get_sort_key = lambda x: (x.entity, str(x.component_class))
+            get_group_key = lambda x: (x.entity, x.component_class)
+            for (entity, component_class), events in itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key):
+                component = functools.reduce(
+                    lambda r, e: e.func(r),
+                    events,
+                    manager.entities.get(entity=entity, component_class=component_class),
+                )
+                manager.entities.set(entity, component_class, component)
         return World(manager, self._systems)
 
     def serialize(self):
