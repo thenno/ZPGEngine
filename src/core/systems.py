@@ -221,7 +221,7 @@ class FOVSystem(System):
         def is_visible(pos_to: Position) -> bool:
             line = list(self._get_line_of_view(position, pos_to))
             for i, pos_for_check in enumerate(line):
-                if i not in (0, len(line) - 1) and not self._manager.components.get(Position):
+                if i not in (0, len(line) - 1) and self._manager.components.get(pos_for_check):
                     return False
             return True
 
@@ -230,8 +230,8 @@ class FOVSystem(System):
         for pos in positions:
             if not (0 <= pos.x < BOARD_SIZE and 0 <= pos.y < BOARD_SIZE):
                 continue
-#            if not is_visible(pos):
-#                continue
+            if not is_visible(pos):
+                continue
             result.add(pos)
         return result
 
