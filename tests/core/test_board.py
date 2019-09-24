@@ -1,10 +1,11 @@
-from core.board import (
+from core.components import (
     Position,
+)
+from core.board import (
     Distance,
-    Direction,
+    generate_movements,
     get_line_of_view,
     get_distance,
-    generate_movements,
 )
 
 
@@ -51,12 +52,6 @@ def test_get_distance():
     assert get_distance(Position(0, 10), Position(0, 0)) == Distance(10)
     assert get_distance(Position(10, 10), Position(0, 0)) == Distance(10)
     assert get_distance(Position(6, 2), Position(12, 10)) == Distance(8)
-
-
-def test_direction():
-    assert Direction.from_positions(Position(5, 5), Position(5, 5)) == Direction(0, 0)
-    assert Direction.from_positions(Position(5, 5), Position(1, 3)) == Direction(-1, -1)
-    assert Direction.from_positions(Position(3, 6), Position(5, 5)) == Direction(1, -1)
 
 
 def test_generate_movements():
