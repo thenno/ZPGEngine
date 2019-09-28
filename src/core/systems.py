@@ -43,8 +43,8 @@ class World:
 
     def step(self) -> 'World':
         manager = self._manager
+        manager = manager.clone()
         for system in self._systems:
-            manager = manager.clone()
             events = system(manager).process() or []
             get_sort_key = lambda x: (x.entity, str(x.component_class))
             get_group_key = lambda x: (x.entity, x.component_class)
