@@ -45,10 +45,6 @@ class World:
         self._manager = manager
         self._systems = systems
 
-    def _process(self):
-        for system in self._systems:
-            yield system(self._manager).process() or []
-
     def step(self) -> 'World':
         manager = self._manager
         manager = manager.clone()
