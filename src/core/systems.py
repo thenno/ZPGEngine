@@ -1,7 +1,7 @@
 import functools
 import itertools
 import random
-from typing import Type, Callable, NewType, Iterable
+from typing import Type, Callable, Iterable
 from dataclasses import dataclass
 
 from core.components import (
@@ -52,7 +52,8 @@ class World:
             events = system(manager).process() or []
             get_sort_key = lambda x: (x.entity, str(x.component_class))
             get_group_key = lambda x: (x.entity, x.component_class)
-            for (entity, component_class), events in itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key):
+            grouped_events = itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key)
+            for (entity, component_class), events in grouped_events:
                 component = functools.reduce(
                     lambda r, e: e.func(r),
                     events,
