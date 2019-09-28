@@ -32,8 +32,16 @@ class Event:
     component_class: Type[Component]
 
 
+class System:
+    def __init__(self, manager: Manager):
+        self._manager = manager
+
+    def process(self) -> Iterable[Event]:
+        pass
+
+
 class World:
-    def __init__(self, manager: Manager, systems):
+    def __init__(self, manager: Manager, systems: Iterable[Type[System]]):
         self._manager = manager
         self._systems = systems
 
@@ -81,14 +89,6 @@ class Move:
         if self._is_valid(new_position):
             return new_position
         return position
-
-
-class System:
-    def __init__(self, manager: Manager):
-        self._manager = manager
-
-    def process(self) -> Iterable[Event]:
-        pass
 
 
 class AISystem(System):
