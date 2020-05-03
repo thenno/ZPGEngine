@@ -200,11 +200,6 @@ class CleanupSystem(System):
                 )
 
 
-class PositionWrapper:
-    def __init__(self, position: Position):
-        self._position = position
-
-
 class FOVSystem(System):
     def process(self):
         for entity in self._manager.entities.filter([Vision, FOV, Position]):
