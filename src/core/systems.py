@@ -1,15 +1,12 @@
 import functools
 import itertools
 import random
-from copy import deepcopy
-from typing import Type, Callable, Iterable
-from dataclasses import dataclass
+from typing import Type, Iterable
 
 from core.components import (
     Manager,
     Position,
     Visible,
-    Component,
     Movable,
     Actions,
     FOV,
@@ -18,19 +15,17 @@ from core.components import (
     UnderUserControl,
     AI,
 )
+from core.events import Event
+from core.constants import BOARD_SIZE
 from core.board import (
     get_fov_mask,
 )
-
-
-BOARD_SIZE = 10
-
-
-@dataclass(frozen=True)
-class Event:
-    func: Callable
-    entity: int
-    component_class: Type[Component]
+from core.events import (
+    Move,
+    SetActions,
+    SetFOV,
+    Clean,
+)
 
 
 class System:
@@ -56,7 +51,7 @@ class World:
             grouped_events = itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key)
             for (entity, component_class), events in grouped_events:
                 component = functools.reduce(
-                    lambda r, e: e.func(r),
+                    lambda r, e: e(r),
                     events,
                     manager.entities.get(entity=entity, component_class=component_class),
                 )
@@ -67,43 +62,12 @@ class World:
         return self._manager.serialize()
 
 
-class Action:
-    pass
-
-
-class Move(Action):
-    def __init__(self, manager, dx, dy):
-        self._dx = dx
-        self._dy = dy
-        self._manager = manager
-
-    def _is_valid(self, position):
-        if not (0 <= position.x < BOARD_SIZE and 0 <= position.y < BOARD_SIZE):
-            return False
-        if self._manager.components.get(position):
-            return False
-        return True
-
-    def __call__(self, position):
-        x = position.x + self._dx
-        y = position.y + self._dy
-        new_position = Position(x, y)
-        if self._is_valid(new_position):
-            return new_position
-        return position
-
-
 class AISystem(System):
     def process(self):
         for entity in self._manager.entities.filter([Actions, AI]):
             actions = self._manager.entities.get(entity, Actions).actions
             action = random.choice(actions)
-            func, args = action
-            yield Event(
-                entity=entity,
-                component_class=Position,
-                func=func(self._manager, *args),
-            )
+            yield action
 
 
 class UserControlSystem(System):
@@ -119,28 +83,13 @@ class UserControlSystem(System):
                 'sa': (-1, 1),
                 'sd': (1, 1),
             }[input()]
-            yield Event(
+            yield Move(
                 entity=entity,
                 component_class=Position,
-                func=Move(self._manager, *result)
+                dx=result[0],
+                dy=result[1],
+                manager=self._manager,
             )
-
-
-class SetActions:
-    def __init__(self, func, args):
-        self._func = func
-        self._args = args
-
-    def __call__(self, actions):
-        return Actions(actions.actions + ((self._func, self._args),))
-
-
-class SetFOV:
-    def __init__(self, fov):
-        self._fov = fov
-
-    def __call__(self, fov):
-        return FOV(fov.fov | self._fov)
 
 
 class AllowActionSystem(System):
@@ -154,10 +103,16 @@ class AllowActionSystem(System):
     def process(self):
         for entity in self._manager.entities.filter([Movable]):
             for dx, dy in self._generate_directions():
-                yield Event(
+                yield SetActions(
                     entity=entity,
                     component_class=Actions,
-                    func=SetActions(func=Move, args=(dx, dy)),
+                    event=Move(
+                        entity=entity,
+                        component_class=Position,
+                        dx=dx,
+                        dy=dy,
+                        manager=self._manager,
+                    ),
                 )
 
 
@@ -193,10 +148,9 @@ class CleanupSystem(System):
     def process(self):
         for cls in self._manager.components.get_need_clean():
             for entity in range(self._manager.entities.count):
-                yield Event(
+                yield Clean(
                     entity=entity,
                     component_class=cls,
-                    func=lambda x, c=cls: c(),
                 )
 
 
@@ -206,8 +160,8 @@ class FOVSystem(System):
             position = self._manager.entities.get(entity, Position)
             is_full = lambda x: self._manager.components.get(x)
             fov = get_fov_mask(position=position, fow_size=3, board_size=BOARD_SIZE, is_full=is_full)
-            yield Event(
+            yield SetFOV(
                 entity=entity,
                 component_class=FOV,
-                func=SetFOV(fov),
+                fov=fov,
             )
