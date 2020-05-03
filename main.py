@@ -32,6 +32,7 @@ def main():
             Name('wall'),
             Name('wall'),
             Name('wall'),
+            Name('test3'),
         ],
         Position: [
             Position(0, 9),
@@ -39,6 +40,7 @@ def main():
             Position(4, 4),
             Position(5, 4),
             Position(6, 4),
+            Position(9, 9),
         ],
         Visible: [
             Visible('x'),
@@ -46,6 +48,7 @@ def main():
             Visible('#'),
             Visible('#'),
             Visible('#'),
+            Visible('z'),
         ],
         Movable: [
             Movable(),
@@ -53,6 +56,7 @@ def main():
             None,
             None,
             None,
+            Movable(),
         ],
         AI: [
             None,
@@ -60,6 +64,7 @@ def main():
             None,
             None,
             None,
+            AI(),
         ],
         UnderUserControl: [
             UnderUserControl(),
@@ -67,8 +72,10 @@ def main():
             None,
             None,
             None,
+            None,
         ],
         Actions: [
+            None,
             None,
             None,
             None,
@@ -81,6 +88,7 @@ def main():
             None,
             None,
             None,
+            None,
         ],
         Vision: [
             Vision(),
@@ -88,9 +96,11 @@ def main():
             None,
             None,
             None,
+            Vision(),
         ],
         Viewer: [
             Viewer(),
+            None,
             None,
             None,
             None,
