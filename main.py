@@ -100,11 +100,11 @@ def main():
     cm = Manager(components)
     systems = [
         CleanupSystem,
+        FOVSystem,
+        ViewSystem,
         AllowActionSystem,
         AISystem,
         UserControlSystem,
-        FOVSystem,
-        ViewSystem,
     ]
     world = World(cm, systems)
     for i in range(30):
