@@ -102,12 +102,12 @@ class Vision(Component):
 
 @dataclass(frozen=True)
 class FOV(Component, AutoClean):
-    fov: FrozenSet[Position]
+    fov: FrozenSet[Position] = frozenset()
 
 
 @dataclass(frozen=True)
 class Actions(Component, AutoClean):
-    actions: Tuple
+    actions: Tuple = tuple()
 
 
 @dataclass(frozen=True)

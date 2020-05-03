@@ -1,6 +1,7 @@
 import functools
 import itertools
 import random
+from copy import deepcopy
 from typing import Type, Callable, Iterable
 from dataclasses import dataclass
 
@@ -66,7 +67,11 @@ class World:
         return self._manager.serialize()
 
 
-class Move:
+class Action:
+    pass
+
+
+class Move(Action):
     def __init__(self, manager, dx, dy):
         self._dx = dx
         self._dy = dy
@@ -127,8 +132,6 @@ class SetActions:
         self._args = args
 
     def __call__(self, actions):
-        if actions is None:
-            actions = Actions(tuple())
         return Actions(actions.actions + ((self._func, self._args),))
 
 
@@ -137,8 +140,6 @@ class SetFOV:
         self._fov = fov
 
     def __call__(self, fov):
-        if fov is None:
-            fov = FOV(frozenset())
         return FOV(fov.fov | self._fov)
 
 
@@ -156,7 +157,7 @@ class AllowActionSystem(System):
                 yield Event(
                     entity=entity,
                     component_class=Actions,
-                    func=SetActions(func=Move, args=(dx, dy))
+                    func=SetActions(func=Move, args=(dx, dy)),
                 )
 
 
@@ -195,7 +196,7 @@ class CleanupSystem(System):
                 yield Event(
                     entity=entity,
                     component_class=cls,
-                    func=lambda x: None,
+                    func=lambda x, c=cls: c(),
                 )
 
 
@@ -206,7 +207,7 @@ class PositionWrapper:
 
 class FOVSystem(System):
     def process(self):
-        for entity in self._manager.entities.filter([Vision, Position]):
+        for entity in self._manager.entities.filter([Vision, FOV, Position]):
             position = self._manager.entities.get(entity, Position)
             is_full = lambda x: self._manager.components.get(x)
             fov = get_fov_mask(position=position, fow_size=3, board_size=BOARD_SIZE, is_full=is_full)
