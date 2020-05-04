@@ -1,6 +1,6 @@
 from copy import deepcopy
-from dataclasses import dataclass
-from typing import Tuple, FrozenSet
+from dataclasses import dataclass, asdict
+from typing import Tuple, FrozenSet, Dict, Optional, Type, List
 from collections import defaultdict
 
 
@@ -57,10 +57,13 @@ class Components:
 
 
 class Manager:
-    def __init__(self, components):
+    def __init__(self, components: Dict[Type, List[Optional[Component]]]):
+        if components is None:
+            components = {}
         self.components = Components(components)
         self.entities = Entities(components)
         self._components = components
+        self._components_classes = components.keys()
 
     def clone(self):
         return Manager(deepcopy(self._components))
@@ -68,11 +71,27 @@ class Manager:
     def serialize(self):
         return self._components
 
+    def add(self, entity: 'EntityBuilder'):
+        components = deepcopy(self._components)
+        for cls, component in entity.to_dict().items():
+            components[cls].append(component)
+        return Manager(components)
+
 
 @dataclass(frozen=True)
 class Position(Component):
     x: int
     y: int
+
+
+@dataclass(frozen=True)
+class PositionX(Component):
+    coord: int
+
+
+@dataclass(frozen=True)
+class PositionY(Component):
+    coord: int
 
 
 @dataclass(frozen=True)
@@ -111,10 +130,38 @@ class Actions(Component, AutoClean):
 
 
 @dataclass(frozen=True)
-class Viewer:
+class Viewer(Component):
     pass
 
 
 @dataclass(frozen=True)
-class UnderUserControl:
+class UnderUserControl(Component):
     pass
+
+
+@dataclass(frozen=True)
+class EntityBuilder:
+    name: Name
+    actions: Actions = Actions()
+    fov: FOV = FOV()
+    visible: Optional[Visible] = None
+    ai: Optional[AI] = None
+    under_user_control: Optional[UnderUserControl] = None
+    vision: Optional[Vision] = None
+    viewer: Optional[Viewer] = None
+    position: Optional[Position] = None
+    movable: Optional[Movable] = None
+
+    def to_dict(self) -> Dict[Type, Optional[Component]]:
+        return {
+            Name: self.name,
+            Actions: self.actions,
+            FOV: self.fov,
+            Visible: self.visible,
+            AI: self.ai,
+            UnderUserControl: self.under_user_control,
+            Vision: self.vision,
+            Viewer: self.viewer,
+            Position: self.position,
+            Movable: self.movable,
+        }
