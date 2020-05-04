@@ -1,4 +1,3 @@
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Tuple, FrozenSet, Dict, Optional, Type, List
 from collections import defaultdict
@@ -60,22 +59,24 @@ class Manager:
     def __init__(self, components: Optional[Dict[Type, List[Optional[Component]]]] = None):
         if components is None:
             components = defaultdict(list)
-        self.components = Components(components)
-        self.entities = Entities(components)
         self._components = components
-        self._components_classes = list(components.keys())
+        self.components = None
+        self.entities = None
+        self._components_classes = []
+        self.reinit()
 
-    def clone(self):
-        return Manager(deepcopy(self._components))
+    def reinit(self):
+        self.components = Components(self._components)
+        self.entities = Entities(self._components)
+        self._components_classes = list(self._components.keys())
 
     def serialize(self):
         return self._components
 
     def add(self, entity: 'EntityBuilder'):
-        components = deepcopy(self._components)
         for cls, component in entity.to_dict().items():
-            components[cls].append(component)
-        return Manager(components)
+            self._components[cls].append(component)
+        self.reinit()
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import logging
+
 from core.components import (
     Manager,
     Position,
@@ -21,6 +23,9 @@ from core.systems import (
     FOVSystem,
     UserControlSystem,
 )
+
+
+logging.basicConfig(filename='tech.log', level=logging.DEBUG)
 
 
 def main():
@@ -68,7 +73,7 @@ def main():
     ]
     cm = Manager()
     for entity in entities:
-        cm = cm.add(entity)
+        cm.add(entity)
     systems = [
         CleanupSystem,
         FOVSystem,

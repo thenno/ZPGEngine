@@ -1,3 +1,4 @@
+import logging
 import functools
 import itertools
 import random
@@ -28,6 +29,9 @@ from core.events import (
 )
 
 
+_LOGGER = logging.getLogger(__name__)
+
+
 class System:
     def __init__(self, manager: Manager):
         self._manager = manager
@@ -40,22 +44,26 @@ class World:
     def __init__(self, manager: Manager, systems: Iterable[Type[System]]):
         self._manager = manager
         self._systems = systems
+        self._logger = _LOGGER.getChild('world')
 
     def step(self) -> 'World':
         manager = self._manager
         for system in self._systems:
+            self._logger.info('Process system %s', system)
             events = system(manager).process() or []
             get_sort_key = lambda x: (x.entity, str(x.component_class))
             get_group_key = lambda x: (x.entity, x.component_class)
             grouped_events = itertools.groupby(sorted(events, key=get_sort_key), key=get_group_key)
             for (entity, component_class), events in grouped_events:
+                self._logger.info('Process entity %s %s', entity, component_class)
                 component = functools.reduce(
                     lambda r, e: e(r),
                     events,
                     manager.entities.get(entity=entity, component_class=component_class),
                 )
+                self._logger.info('Set entity %s %s component %s', entity, component_class, component)
                 manager.entities.set(entity, component_class, component)
-                manager = manager.clone()
+                manager.reinit()
         return World(manager, self._systems)
 
     def serialize(self):
