@@ -1,5 +1,5 @@
 from copy import deepcopy
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import Tuple, FrozenSet, Dict, Optional, Type, List
 from collections import defaultdict
 

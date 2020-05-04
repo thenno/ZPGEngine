@@ -7,8 +7,6 @@ from core.components import (
     Name,
     Movable,
     AI,
-    Actions,
-    FOV,
     Vision,
     Viewer,
     UnderUserControl,
