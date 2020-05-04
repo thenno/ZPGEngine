@@ -72,9 +72,10 @@ def main():
     systems = [
         CleanupSystem,
         FOVSystem,
-        ViewSystem,
         AllowActionSystem,
         AISystem,
+        FOVSystem,
+        ViewSystem,
         UserControlSystem,
     ]
     world = World(cm, systems)

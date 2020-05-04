@@ -85,6 +85,12 @@ class Position(Component):
 
 
 @dataclass(frozen=True)
+class NextPosition(Component):
+    x: int
+    y: int
+
+
+@dataclass(frozen=True)
 class PositionX(Component):
     coord: int
 
@@ -151,6 +157,7 @@ class EntityBuilder:
     viewer: Optional[Viewer] = None
     position: Optional[Position] = None
     movable: Optional[Movable] = None
+    next_position: Optional[NextPosition] = None
 
     def to_dict(self) -> Dict[Type, Optional[Component]]:
         return {
@@ -164,4 +171,5 @@ class EntityBuilder:
             Viewer: self.viewer,
             Position: self.position,
             Movable: self.movable,
+            NextPosition: self.next_position,
         }

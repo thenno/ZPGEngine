@@ -43,7 +43,6 @@ class World:
 
     def step(self) -> 'World':
         manager = self._manager
-        manager = manager.clone()
         for system in self._systems:
             events = system(manager).process() or []
             get_sort_key = lambda x: (x.entity, str(x.component_class))
@@ -56,6 +55,7 @@ class World:
                     manager.entities.get(entity=entity, component_class=component_class),
                 )
                 manager.entities.set(entity, component_class, component)
+                manager = manager.clone()
         return World(manager, self._systems)
 
     def serialize(self):
