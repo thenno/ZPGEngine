@@ -12,6 +12,7 @@ from core.components import (
     Vision,
     Viewer,
     UnderUserControl,
+    EntityBuilder,
 )
 from core.systems import (
     World,
@@ -25,89 +26,51 @@ from core.systems import (
 
 
 def main():
-    components = {
-        Name: [
-            Name('test1'),
-            Name('test2'),
-            Name('wall'),
-            Name('wall'),
-            Name('wall'),
-            Name('test3'),
-        ],
-        Position: [
-            Position(0, 9),
-            Position(0, 0),
-            Position(4, 4),
-            Position(5, 4),
-            Position(6, 4),
-            Position(9, 9),
-        ],
-        Visible: [
-            Visible('x'),
-            Visible('y'),
-            Visible('#'),
-            Visible('#'),
-            Visible('#'),
-            Visible('z'),
-        ],
-        Movable: [
-            Movable(),
-            Movable(),
-            None,
-            None,
-            None,
-            Movable(),
-        ],
-        AI: [
-            None,
-            AI(),
-            None,
-            None,
-            None,
-            AI(),
-        ],
-        UnderUserControl: [
-            UnderUserControl(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        ],
-        Actions: [
-            Actions(tuple()),
-            Actions(tuple()),
-            Actions(tuple()),
-            Actions(tuple()),
-            Actions(tuple()),
-            Actions(tuple()),
-        ],
-        FOV: [
-            FOV(frozenset()),
-            FOV(frozenset()),
-            None,
-            None,
-            None,
-            FOV(frozenset()),
-        ],
-        Vision: [
-            Vision(),
-            Vision(),
-            None,
-            None,
-            None,
-            Vision(),
-        ],
-        Viewer: [
-            Viewer(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        ],
-    }
-    cm = Manager(components)
+    entities = [
+        EntityBuilder(
+            name=Name('test1'),
+            position=Position(0, 9),
+            visible=Visible('x'),
+            movable=Movable(),
+            under_user_control=UnderUserControl(),
+            vision=Vision(),
+            viewer=Viewer(),
+        ),
+        EntityBuilder(
+            name=Name('test2'),
+            position=Position(0, 0),
+            visible=Visible('y'),
+            movable=Movable(),
+            ai=AI(),
+            vision=Vision(),
+        ),
+        EntityBuilder(
+            name=Name('wall'),
+            position=Position(4, 4),
+            visible=Visible('#'),
+        ),
+        EntityBuilder(
+            name=Name('wall'),
+            position=Position(5, 4),
+            visible=Visible('#'),
+        ),
+        EntityBuilder(
+            name=Name('wall'),
+            position=Position(6, 4),
+            visible=Visible('#'),
+        ),
+        EntityBuilder(
+            name=Name('test3'),
+            position=Position(9, 9),
+            visible=Visible('z'),
+            movable=Movable(),
+            ai=AI(),
+            vision=Vision(),
+        ),
+    ]
+    cm = Manager()
+    for entity in entities:
+        cm = cm.add(entity)
     systems = [
         CleanupSystem,
         FOVSystem,

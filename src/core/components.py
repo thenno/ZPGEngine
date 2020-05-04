@@ -57,13 +57,13 @@ class Components:
 
 
 class Manager:
-    def __init__(self, components: Dict[Type, List[Optional[Component]]]):
+    def __init__(self, components: Optional[Dict[Type, List[Optional[Component]]]] = None):
         if components is None:
-            components = {}
+            components = defaultdict(list)
         self.components = Components(components)
         self.entities = Entities(components)
         self._components = components
-        self._components_classes = components.keys()
+        self._components_classes = list(components.keys())
 
     def clone(self):
         return Manager(deepcopy(self._components))
