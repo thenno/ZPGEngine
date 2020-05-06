@@ -62,7 +62,7 @@ class Manager:
         self._components = components
         self.components = None
         self.entities = None
-        self._components_classes = []
+        self._components_classes: List = []
         self.reinit()
 
     def reinit(self):
